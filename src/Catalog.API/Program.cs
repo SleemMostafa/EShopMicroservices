@@ -20,5 +20,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapCarter();
-app.UseHttpsRedirection();
+app.Run();
 
