@@ -1,7 +1,7 @@
 ﻿namespace Catalog.API.Products.GetProductByCategory;
 
 public sealed record GetProductsByCategoryQuery(string Category):IQuery<GetProductsByCategoryResult>;
-public sealed record GetProductsByCategoryResult(IEnumerable<ProductDto> Product);
+public sealed record GetProductsByCategoryResult(IEnumerable<Product> Products);
 
 internal sealed class GetProductsByCategoryQueryHandler
     : IQueryHandler<GetProductsByCategoryQuery, GetProductsByCategoryResult>
@@ -23,6 +23,6 @@ internal sealed class GetProductsByCategoryQueryHandler
             .Where(product => product.Category.Contains(query.Category))
             .ToListAsync(cancellationToken);
 
-        return new GetProductsByCategoryResult(products.Adapt<IEnumerable<ProductDto>>());
+        return new GetProductsByCategoryResult(products);
     }
 }

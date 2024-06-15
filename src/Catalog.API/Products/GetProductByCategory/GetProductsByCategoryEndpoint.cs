@@ -1,10 +1,10 @@
 ﻿namespace Catalog.API.Products.GetProductByCategory;
-public sealed record GetProductsByCategoryResponse(ProductDto Product);
+public sealed record GetProductsByCategoryResponse(IEnumerable<ProductDto> Products);
 public sealed class GetProductsByCategoryEndpoint:ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet("/products/{category}", async (string category,ISender sender,CancellationToken ct) =>
+        app.MapGet("/products/category/{category}", async (string category,ISender sender,CancellationToken ct) =>
             {
                 var result = await sender.Send(new GetProductsByCategoryQuery(category), ct);
 

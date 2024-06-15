@@ -2,7 +2,7 @@
 
 public sealed record GetProductsQuery() : IQuery<GetProductsResult>;
 
-public record GetProductsResult(IEnumerable<ProductDto> Products);
+public record GetProductsResult(IEnumerable<Product> Products);
 
 internal sealed class GetProductsQueryHandler 
     : IQueryHandler<GetProductsQuery, GetProductsResult>
@@ -23,6 +23,6 @@ internal sealed class GetProductsQueryHandler
         var products = await _session.Query<Product>()
             .ToListAsync(cancellationToken);
 
-        return new GetProductsResult(products.Adapt<IEnumerable<ProductDto>>());
+        return new GetProductsResult(products);
     }
 }
