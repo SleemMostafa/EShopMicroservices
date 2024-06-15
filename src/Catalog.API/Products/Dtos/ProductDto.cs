@@ -8,5 +8,5 @@ public sealed record ProductDto(
     string ImageFile,
     decimal Price,
     DateTimeOffset DateCreated,
-    DateTimeOffset? DateUpdated
+    DateTimeOffset? DateLastUpdated
 );

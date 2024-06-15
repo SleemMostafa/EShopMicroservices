@@ -1,7 +1,4 @@
-﻿using Catalog.API.Products.Dtos;
-using Catalog.API.Products.Mapper;
-
-namespace Catalog.API.Products.GetProducts;
+﻿namespace Catalog.API.Products.GetProducts;
 
 public sealed record GetProductsQuery() : IQuery<GetProductsResult>;
 
@@ -26,6 +23,6 @@ internal sealed class GetProductsQueryHandler
         var products = await _session.Query<Product>()
             .ToListAsync(cancellationToken);
 
-        return new GetProductsResult(products.ToProductsDto());
+        return new GetProductsResult(products.Adapt<IEnumerable<ProductDto>>());
     }
 }

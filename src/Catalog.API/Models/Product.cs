@@ -9,10 +9,10 @@ public class Product
     public required string ImageFile { get; init; }
     public required decimal Price { get; init; }
     public required DateTimeOffset DateCreated { get; init; }
-    public DateTimeOffset? DateUpdated { get; private set; }
+    public DateTimeOffset? DateLastUpdated { get; private set; }
 
-    public void Update(DateTimeOffset now)
+    public void UpdateDateLastUpdated(DateTimeOffset now)
     {
-        DateUpdated = now;
+        DateLastUpdated = now;
     }
 }
