@@ -11,8 +11,18 @@ public class Product
     public required DateTimeOffset DateCreated { get; init; }
     public DateTimeOffset? DateLastUpdated { get; private set; }
 
-    public void UpdateDateLastUpdated(DateTimeOffset now)
+    public Product Update(DateTimeOffset now,string name,string description,List<string> category,string imageFile, decimal price)
     {
-        DateLastUpdated = now;
+        return new Product
+        {
+            Id = Id,
+            Category = category,
+            Description = description,
+            Name = name,
+            Price = price,
+            DateCreated = DateCreated,
+            ImageFile = imageFile,
+            DateLastUpdated = now,
+        };
     }
 }
