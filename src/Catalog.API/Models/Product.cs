@@ -8,4 +8,11 @@ public class Product
     public required List<string> Category { get; init; } = [];
     public required string ImageFile { get; init; }
     public required decimal Price { get; init; }
+    public required DateTimeOffset DateCreated { get; init; }
+    public DateTimeOffset? DateUpdated { get; private set; }
+
+    public void Update(DateTimeOffset now)
+    {
+        DateUpdated = now;
+    }
 }
