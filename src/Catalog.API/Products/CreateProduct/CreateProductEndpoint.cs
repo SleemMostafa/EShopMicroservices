@@ -20,7 +20,7 @@ public sealed class CreateProductEndpoint : ICarterModule
                 var result = await sender.Send(command, ct);
 
                 var response = result.Adapt<CreateProductResponse>();
-
+                
                 return Results.Created($"/product{response.Id}", response);
             })
             .WithName("CreateProduct")

@@ -1,4 +1,6 @@
-﻿namespace Catalog.API.Products.UpdateProduct;
+﻿using FluentValidation;
+
+namespace Catalog.API.Products.UpdateProduct;
 
 public sealed record UpdateProductCommand(
     Guid Id,
@@ -11,6 +13,28 @@ public sealed record UpdateProductCommand(
 
 public sealed record UpdateProductResult(bool IsSuccess);
 
+public sealed class UpdateProductValidator : AbstractValidator<UpdateProductCommand>
+{
+    public UpdateProductValidator()
+    {
+        RuleFor(command => command.Name)
+            .NotEmpty().WithMessage("Name is required")
+            .Length(2, 150).WithMessage("Name must be between 2 and 150 characters");
+        
+        RuleFor(command => command.Description)
+            .NotEmpty().WithMessage("Description is required")
+            .Length(10, 500).WithMessage("Description must be between 10 and 500 characters");
+
+        RuleFor(command => command.ImageFile)
+            .NotEmpty().WithMessage("ImageFile is required");
+        
+        RuleFor(command => command.Category)
+            .NotEmpty().WithMessage("Category is required");
+        
+        RuleFor(command => command.Price)
+            .GreaterThan(0).WithMessage("Price must be greater than 0");
+    }
+}
 internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProductCommand, UpdateProductResult>
 {
     private readonly IDocumentSession _session;
