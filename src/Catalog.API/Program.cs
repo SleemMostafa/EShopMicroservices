@@ -1,4 +1,5 @@
 using BuildingBlocks.Behaviors;
+using BuildingBlocks.Exceptions.Handler;
 using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +17,7 @@ builder.Services.AddMediatR(config =>
 });
 builder.Services.AddValidatorsFromAssembly(assembly);
 builder.Services.AddSingleton<IEshopClock, EshopClock>();
-
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 builder.Services.AddCarter();
 builder.Services.AddMarten(config =>
 {
@@ -33,7 +34,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseExceptionHandler();
+app.UseExceptionHandler(option=>{});
 app.MapCarter();
 app.Run();
 
