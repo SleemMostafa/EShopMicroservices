@@ -18,8 +18,6 @@ internal sealed class DeleteProductCommandHandler
 
     public async Task<DeleteProductResponse> Handle(DeleteProductCommand command, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("DeleteProductCommandHandler.Handle called with {command}", command);
-
         try
         {
             _session.Delete<Product>(command.Id);

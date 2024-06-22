@@ -1,5 +1,6 @@
 using BuildingBlocks.Behaviors;
 using BuildingBlocks.Exceptions.Handler;
+using Catalog.API.Data;
 using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,27 +15,25 @@ builder.Services.AddMediatR(config =>
 {
     config.RegisterServicesFromAssembly(assembly);
     config.AddOpenBehavior(typeof(ValidationBehavior<,>));
+    config.AddOpenBehavior(typeof(LoggingBehavior<,>));
 });
 builder.Services.AddValidatorsFromAssembly(assembly);
 builder.Services.AddSingleton<IEshopClock, EshopClock>();
+
+
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 builder.Services.AddCarter();
-builder.Services.AddMarten(config =>
+builder.Services.AddMarten(config => { config.Connection(builder.Configuration.GetConnectionString("Database")!); })
+    .UseLightweightSessions();
+
+if (builder.Environment.IsDevelopment())
 {
-    config.Connection(builder.Configuration.GetConnectionString("Database")!);
-})
-.UseLightweightSessions();
+    builder.Services.InitializeMartenWith<CatalogInitialData>();
+}
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
-app.UseExceptionHandler(option=>{});
+app.UseExceptionHandler(option => { });
 app.MapCarter();
 app.Run();
-
