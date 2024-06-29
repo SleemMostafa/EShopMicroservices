@@ -4,5 +4,12 @@ services:
   catalogdb:
     image: postgres
 
+  basketdb:
+    image: postgres
+
+  distributedcache:
+    image: redis
+
 volumes:
   postgres_catalog:
+  postgres_basket:
