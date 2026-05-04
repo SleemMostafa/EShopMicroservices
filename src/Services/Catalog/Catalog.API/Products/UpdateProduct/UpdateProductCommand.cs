@@ -37,13 +37,16 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
 }
 internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProductCommand, UpdateProductResult>
 {
-    private readonly IDocumentSession _session;
+    private readonly IProductRepository _repository;
     private readonly ILogger<UpdateProductCommandHandler> _logger;
     private readonly IEshopClock _clock;
 
-    public UpdateProductCommandHandler(IDocumentSession session, ILogger<UpdateProductCommandHandler> logger, IEshopClock clock)
+    public UpdateProductCommandHandler(
+        IProductRepository repository,
+        ILogger<UpdateProductCommandHandler> logger,
+        IEshopClock clock)
     {
-        _session = session;
+        _repository = repository;
         _logger = logger;
         _clock = clock;
     }
@@ -52,33 +55,22 @@ internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProduc
     {
         _logger.LogInformation("UpdateProductCommandHandler.Handle called with {command}", command);
 
-        try
+        var product = await _repository.GetByIdAsync(command.Id, cancellationToken);
+
+        if (product is null)
         {
-            var product = await _session
-                .LoadAsync<Product>(command.Id, cancellationToken);
-
-            if (product is null)
-            {
-                throw new ProductNotFoundException();
-            }
-
-            product = product.Update(
-                _clock.DateTimeOffset,
-                command.Name,
-                command.Description,
-                command.Category,
-                command.ImageFile,
-                command.Price
-            );
-
-            _session.Update(product);
-            await _session.SaveChangesAsync(cancellationToken);
-            return new UpdateProductResult(true);
+            throw new ProductNotFoundException(command.Id);
         }
-        catch (Exception e)
-        {
-            _logger.LogError("Something went wrong on update product");
-            return new UpdateProductResult(false);
-        }
+
+        product.Update(
+            _clock.DateTimeOffset,
+            command.Name,
+            command.Description,
+            command.Category,
+            command.ImageFile,
+            command.Price);
+
+        await _repository.UpdateAsync(product, cancellationToken);
+        return new UpdateProductResult(true);
     }
 }

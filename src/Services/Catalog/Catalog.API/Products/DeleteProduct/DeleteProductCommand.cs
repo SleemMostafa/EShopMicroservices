@@ -7,28 +7,26 @@ public sealed record DeleteProductResult(bool IsSuccess);
 internal sealed class DeleteProductCommandHandler
     : ICommandHandler<DeleteProductCommand, DeleteProductResponse>
 {
-    private readonly IDocumentSession _session;
+    private readonly IProductRepository _repository;
     private readonly ILogger<DeleteProductCommandHandler> _logger;
 
-    public DeleteProductCommandHandler(IDocumentSession session, ILogger<DeleteProductCommandHandler> logger)
+    public DeleteProductCommandHandler(IProductRepository repository, ILogger<DeleteProductCommandHandler> logger)
     {
-        _session = session;
+        _repository = repository;
         _logger = logger;
     }
 
     public async Task<DeleteProductResponse> Handle(DeleteProductCommand command, CancellationToken cancellationToken)
     {
-        try
+        var product = await _repository.GetByIdAsync(command.Id, cancellationToken);
+        if (product is null)
         {
-            _session.Delete<Product>(command.Id);
+            throw new ProductNotFoundException(command.Id);
+        }
 
-            await _session.SaveChangesAsync(cancellationToken);
-            return new DeleteProductResponse(true);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError("Something went wrong on delete product {id}", command.Id);
-            return new DeleteProductResponse(false);
-        }
+        await _repository.DeleteAsync(command.Id, cancellationToken);
+        _logger.LogInformation("Delete product successfully {id}", command.Id);
+
+        return new DeleteProductResponse(true);
     }
 }

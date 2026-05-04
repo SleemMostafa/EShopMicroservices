@@ -7,12 +7,14 @@ public sealed record GetProductsByCategoryResult(IEnumerable<Product> Products);
 internal sealed class GetProductsByCategoryQueryHandler
     : IQueryHandler<GetProductsByCategoryQuery, GetProductsByCategoryResult>
 {
-    private readonly IDocumentSession _session;
+    private readonly IProductRepository _repository;
     private readonly ILogger<GetProductsByCategoryQueryHandler> _logger;
 
-    public GetProductsByCategoryQueryHandler(IDocumentSession session, ILogger<GetProductsByCategoryQueryHandler> logger)
+    public GetProductsByCategoryQueryHandler(
+        IProductRepository repository,
+        ILogger<GetProductsByCategoryQueryHandler> logger)
     {
-        _session = session;
+        _repository = repository;
         _logger = logger;
     }
 
@@ -20,10 +22,7 @@ internal sealed class GetProductsByCategoryQueryHandler
     {
         _logger.LogInformation("GetProductsByCategoryQueryHandler.Handle called with query {@query}", query);
 
-        var products = await _session.Query<Product>()
-            .Where(product => product.Category.Contains(query.Category))
-            .ToListAsync(cancellationToken);
-
+        var products = await _repository.GetByCategoryAsync(query.Category, cancellationToken);
 
         return new GetProductsByCategoryResult(products);
     }

@@ -34,44 +34,26 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
             .GreaterThan(0).WithMessage("Price must be greater than 0");
     }
 }
-internal sealed class CreateProductCommandHandler:ICommandHandler<CreateProductCommand,CreateProductResult>
+internal sealed class CreateProductCommandHandler(
+    IProductRepository repository,
+    IEshopClock clock,
+    ILogger<CreateProductCommandHandler> logger)
+    : ICommandHandler<CreateProductCommand, CreateProductResult>
 {
-    private readonly IDocumentSession _session;
-    private readonly IEshopClock _clock;
-    private readonly ILogger<CreateProductCommandHandler> _logger;
-
-    public CreateProductCommandHandler(IDocumentSession session, IEshopClock clock, ILogger<CreateProductCommandHandler> logger)
-    {
-        _session = session;
-        _clock = clock;
-        _logger = logger;
-    }
-
     public async Task<CreateProductResult> Handle(CreateProductCommand command, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("CreateProductCommandHandler.Handle called with {command}",command);
-        try
-        {
-            var product = new Product
-            {
-                Id = Guid.NewGuid(),
-                Name = command.Name,
-                Category = command.Category,
-                Description = command.Description,
-                Price = command.Price,
-                ImageFile = command.ImageFile,
-                DateCreated = _clock.DateTimeOffset,
-            };
-        
-             _session.Store(product);
-            await _session.SaveChangesAsync(cancellationToken);
-            _logger.LogInformation("Create product successfully {id}",product.Id);
-            return new CreateProductResult(product.Id);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError("Something went wrong on create product {message}",e.Message);
-            return new CreateProductResult(Guid.Empty);
-        }
+        logger.LogInformation("CreateProductCommandHandler.Handle called with {command}",command);
+        var product = Product.Create(
+            command.Name,
+            command.Description,
+            command.Category,
+            command.ImageFile,
+            command.Price,
+            clock.DateTimeOffset);
+
+        await repository.AddAsync(product, cancellationToken);
+
+        logger.LogInformation("Create product successfully {id}", product.Id);
+        return new CreateProductResult(product.Id);
     }
 }

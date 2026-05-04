@@ -10,6 +10,9 @@ services:
   distributedcache:
     image: redis
 
+  seq:
+    image: datalust/seq
+
   catalog.api:
     image: ${DOCKER_REGISTRY-}catalogapi
     build:
@@ -31,6 +34,6 @@ services:
 volumes:
   postgres_catalog:
   postgres_basket:
-
+  seq_data:
 
 
