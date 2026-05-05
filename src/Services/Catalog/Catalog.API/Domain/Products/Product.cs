@@ -1,8 +1,9 @@
+using BuildingBlocks.DDD;
 using BuildingBlocks.Exceptions;
 
 namespace Catalog.API.Domain.Products;
 
-public sealed class Product
+public sealed class Product : Aggregate<Guid>
 {
     private Product()
     {
@@ -26,7 +27,6 @@ public sealed class Product
         DateCreated = dateCreated;
     }
 
-    public Guid Id { get; private set; }
     public string Name { get; private set; } = default!;
     public string Description { get; private set; } = default!;
     public List<string> Category { get; private set; } = [];
