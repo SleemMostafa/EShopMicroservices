@@ -1,7 +1,6 @@
 using BuildingBlocks.Behaviors;
 using BuildingBlocks.Exceptions.Handler;
 using BuildingBlocks.Logging;
-using Catalog.API.Data;
 using FluentValidation;
 
 const string ApplicationName = "Catalog.API";
@@ -33,9 +32,14 @@ try
 
     builder.Services.AddExceptionHandler<CustomExceptionHandler>();
     builder.Services.AddCarter();
-    builder.Services.AddMarten(config => { config.Connection(builder.Configuration.GetConnectionString("Database")!); })
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddMarten(config =>
+        {
+            config.Connection(builder.Configuration.GetConnectionString("Database")!);
+            config.UseNewtonsoftForSerialization(nonPublicMembersStorage: NonPublicMembersStorage.NonPublicSetters);
+        })
         .UseLightweightSessions();
-    builder.Services.AddScoped<IProductRepository, MartenProductRepository>();
+    builder.Services.AddScoped<ICurrentUserProvider, CurrentUserProvider>();
 
     if (builder.Environment.IsDevelopment())
     {

@@ -1,3 +1,4 @@
+using ArgumentValidator;
 using BuildingBlocks.DDD;
 using BuildingBlocks.Exceptions;
 
@@ -43,13 +44,13 @@ public sealed class Product : Aggregate<Guid>
         decimal price,
         DateTimeOffset now)
     {
-        ValidateProduct(name, description, category, imageFile, price);
+        var normalizedCategory = ValidateProduct(name, description, category, imageFile, price);
 
         return new Product(
             Guid.NewGuid(),
             name,
             description,
-            NormalizeCategory(category),
+            normalizedCategory,
             imageFile,
             price,
             now);
@@ -64,13 +65,13 @@ public sealed class Product : Aggregate<Guid>
         decimal price,
         DateTimeOffset dateCreated)
     {
-        ValidateProduct(name, description, category, imageFile, price);
+        var normalizedCategory = ValidateProduct(name, description, category, imageFile, price);
 
         return new Product(
             id,
             name,
             description,
-            NormalizeCategory(category),
+            normalizedCategory,
             imageFile,
             price,
             dateCreated);
@@ -84,11 +85,11 @@ public sealed class Product : Aggregate<Guid>
         string imageFile,
         decimal price)
     {
-        ValidateProduct(name, description, category, imageFile, price);
+        var normalizedCategory = ValidateProduct(name, description, category, imageFile, price);
 
         Name = name;
         Description = description;
-        Category = NormalizeCategory(category);
+        Category = normalizedCategory;
         ImageFile = imageFile;
         Price = price;
         DateLastUpdated = now;
@@ -103,36 +104,29 @@ public sealed class Product : Aggregate<Guid>
             .ToList();
     }
 
-    private static void ValidateProduct(
+    private static List<string> ValidateProduct(
         string name,
         string description,
         List<string> category,
         string imageFile,
         decimal price)
     {
-        if (string.IsNullOrWhiteSpace(name))
+        try
         {
-            throw new BadRequestException("Product name is required.");
-        }
+            Throw.IfNullOrEmpty(name, nameof(name));
+            Throw.IfNullOrEmpty(description, nameof(description));
+            Throw.IfNullOrEmpty(category, nameof(category));
+            Throw.IfNullOrEmpty(imageFile, nameof(imageFile));
+            Throw.IfNot(() => price > 0);
 
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            throw new BadRequestException("Product description is required.");
-        }
+            var normalizedCategory = NormalizeCategory(category);
+            Throw.IfNullOrEmpty(normalizedCategory, nameof(category));
 
-        if (category is null || category.Count == 0 || NormalizeCategory(category).Count == 0)
-        {
-            throw new BadRequestException("Product category is required.");
+            return normalizedCategory;
         }
-
-        if (string.IsNullOrWhiteSpace(imageFile))
+        catch (ArgumentException exception)
         {
-            throw new BadRequestException("Product image file is required.");
-        }
-
-        if (price <= 0)
-        {
-            throw new BadRequestException("Product price must be greater than zero.");
+            throw new BadRequestException("Invalid product data.", exception.Message);
         }
     }
 }

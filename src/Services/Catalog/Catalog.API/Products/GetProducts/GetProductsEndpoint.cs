@@ -10,12 +10,12 @@ public sealed class GetProductsEndpoint : ICarterModule
             {
                 var result = await sender.Send(new GetProductsQuery(), ct);
 
-                var response = result.Adapt<GetProductsResponse>();
+                var response = ProductMapper.ToResponse(result);
 
                 return Results.Ok(response);
             })
             .WithName("GetProducts")
-            .Produces<GetProductsResponse>(StatusCodes.Status200OK)
+            .Produces<GetProductsResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithSummary("Get all products")

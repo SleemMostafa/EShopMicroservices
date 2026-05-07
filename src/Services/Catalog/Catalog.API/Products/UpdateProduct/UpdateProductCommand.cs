@@ -37,16 +37,19 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
 }
 internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProductCommand, UpdateProductResult>
 {
-    private readonly IProductRepository _repository;
+    private readonly IDocumentSession _session;
+    private readonly ICurrentUserProvider _currentUserProvider;
     private readonly ILogger<UpdateProductCommandHandler> _logger;
     private readonly IEshopClock _clock;
 
     public UpdateProductCommandHandler(
-        IProductRepository repository,
+        IDocumentSession session,
+        ICurrentUserProvider currentUserProvider,
         ILogger<UpdateProductCommandHandler> logger,
         IEshopClock clock)
     {
-        _repository = repository;
+        _session = session;
+        _currentUserProvider = currentUserProvider;
         _logger = logger;
         _clock = clock;
     }
@@ -55,7 +58,7 @@ internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProduc
     {
         _logger.LogInformation("UpdateProductCommandHandler.Handle called with {command}", command);
 
-        var product = await _repository.GetByIdAsync(command.Id, cancellationToken);
+        var product = await _session.LoadAsync<Product>(command.Id, cancellationToken);
 
         if (product is null)
         {
@@ -70,7 +73,14 @@ internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProduc
             command.ImageFile,
             command.Price);
 
-        await _repository.UpdateAsync(product, cancellationToken);
+        _session.Update(product);
+        _session.Store(ProductAuditTrail.Create(
+            product.Id,
+            ProductAuditAction.Updated,
+            _currentUserProvider.UserId,
+            _clock.DateTimeOffset));
+
+        await _session.SaveChangesAsync(cancellationToken);
         return new UpdateProductResult(true);
     }
 }

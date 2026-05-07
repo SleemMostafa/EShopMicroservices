@@ -16,11 +16,11 @@ public class UpdateProductEndpoint : ICarterModule
     {
         app.MapPut("/products", async (UpdateProductRequest request, ISender sender, CancellationToken ct) =>
             {
-                var command = request.Adapt<UpdateProductCommand>();
+                var command = ProductMapper.ToCommand(request);
 
                 var result = await sender.Send(command, ct);
 
-                var response = result.Adapt<UpdateProductResponse>();
+                var response = ProductMapper.ToResponse(result);
 
                 return Results.Ok(response);
             })

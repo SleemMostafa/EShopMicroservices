@@ -35,7 +35,8 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
     }
 }
 internal sealed class CreateProductCommandHandler(
-    IProductRepository repository,
+    IDocumentSession session,
+    ICurrentUserProvider currentUserProvider,
     IEshopClock clock,
     ILogger<CreateProductCommandHandler> logger)
     : ICommandHandler<CreateProductCommand, CreateProductResult>
@@ -51,7 +52,14 @@ internal sealed class CreateProductCommandHandler(
             command.Price,
             clock.DateTimeOffset);
 
-        await repository.AddAsync(product, cancellationToken);
+        session.Store(product);
+        session.Store(ProductAuditTrail.Create(
+            product.Id,
+            ProductAuditAction.Created,
+            currentUserProvider.UserId,
+            clock.DateTimeOffset));
+
+        await session.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation("Create product successfully {id}", product.Id);
         return new CreateProductResult(product.Id);

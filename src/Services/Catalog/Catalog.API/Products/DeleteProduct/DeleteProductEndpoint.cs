@@ -10,7 +10,7 @@ public class DeleteProductEndpoint : ICarterModule
             {
                 var result = await sender.Send(new DeleteProductCommand(id), ct);
 
-                var response = result.Adapt<DeleteProductResponse>();
+                var response = ProductMapper.ToResponse(result);
 
                 return Results.Ok(response);
             })

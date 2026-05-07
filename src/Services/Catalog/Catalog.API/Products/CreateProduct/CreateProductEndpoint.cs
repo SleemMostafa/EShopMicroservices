@@ -15,11 +15,11 @@ public sealed class CreateProductEndpoint : ICarterModule
     {
         app.MapPost("/products", async (CreateProductRequest request, ISender sender, CancellationToken ct) =>
             {
-                var command = request.Adapt<CreateProductCommand>();
+                var command = ProductMapper.ToCommand(request);
 
                 var result = await sender.Send(command, ct);
 
-                var response = result.Adapt<CreateProductResponse>();
+                var response = ProductMapper.ToResponse(result);
                 
                 return Results.Created($"/product{response.Id}", response);
             })

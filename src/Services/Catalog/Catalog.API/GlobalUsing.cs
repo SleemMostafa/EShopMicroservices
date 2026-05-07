@@ -1,9 +1,10 @@
 ﻿global using Carter;
-global using Mapster;
 global using MediatR;
 global using BuildingBlocks;
 global using BuildingBlocks.CQRS;
 global using Catalog.API.Domain.Products;
+global using Catalog.API.Data;
 global using Marten;
 global using Catalog.API.Exceptions;
 global using Catalog.API.Products.Dtos;
+global using Catalog.API.Products.Mappers;

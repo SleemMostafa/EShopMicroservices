@@ -10,7 +10,7 @@ public sealed class GetProductsByCategoryEndpoint : ICarterModule
             {
                 var result = await sender.Send(new GetProductsByCategoryQuery(category), ct);
 
-                var response = result.Adapt<GetProductsByCategoryResponse>();
+                var response = ProductMapper.ToResponse(result);
 
                 return Results.Ok(response);
             })
