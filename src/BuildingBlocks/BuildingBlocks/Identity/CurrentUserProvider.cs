@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace BuildingBlocks.Identity;
 
@@ -11,9 +12,17 @@ public sealed class CurrentUserProvider(IHttpContextAccessor httpContextAccessor
     {
         get
         {
+            var userId = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? httpContextAccessor.HttpContext?.User.FindFirstValue("sub");
+
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                return userId;
+            }
+
             if (httpContextAccessor.HttpContext?.Request.Headers.TryGetValue(UserIdHeaderName, out var values) == true)
             {
-                var userId = values.FirstOrDefault();
+                userId = values.FirstOrDefault();
 
                 if (!string.IsNullOrWhiteSpace(userId))
                 {

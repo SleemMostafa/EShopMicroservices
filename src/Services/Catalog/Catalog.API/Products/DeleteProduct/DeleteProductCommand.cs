@@ -14,7 +14,7 @@ internal sealed class DeleteProductCommandHandler(
         var product = await session.LoadAsync<Product>(command.Id, cancellationToken);
         if (product is null)
         {
-            throw new ProductNotFoundException(command.Id);
+            throw new ProductNotFoundException("Product not found");
         }
 
         session.Delete<Product>(command.Id);

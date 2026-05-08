@@ -4,6 +4,15 @@ services:
   catalogdb:
     image: postgres:17
 
+  identitydb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+
+  identity.api:
+    image: ${DOCKER_REGISTRY-}identityapi
+    build:
+      context: .
+      dockerfile: Services/Identity/Identity.API/Dockerfile
+
 #  basketdb:
 #    image: postgres
 #
@@ -33,6 +42,7 @@ services:
 
 volumes:
   postgres_catalog:
+  sqlserver_identity:
 #  postgres_basket:
 #  seq_data:
 

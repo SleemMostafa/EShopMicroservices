@@ -25,7 +25,7 @@ internal sealed class GetProductAuditHistoryQueryHandler(
             var product = await session.LoadAsync<Product>(query.ProductId, cancellationToken);
             if (product is null)
             {
-                throw new ProductNotFoundException(query.ProductId);
+                throw new ProductNotFoundException("Product not found");
             }
         }
 

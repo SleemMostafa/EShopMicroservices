@@ -18,7 +18,7 @@ internal sealed class GetProductByIdQueryHandler(
         {
             logger.LogInformation("Product related that {id} not exist", query.Id);
 
-            throw new ProductNotFoundException(query.Id);
+            throw new ProductNotFoundException("Product not found");
         }
 
         return new GetProductByIdResult(product);

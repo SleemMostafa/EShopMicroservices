@@ -50,7 +50,7 @@ internal sealed class UpdateProductCommandHandler(
 
         if (product is null)
         {
-            throw new ProductNotFoundException(command.Id);
+            throw new ProductNotFoundException("Product not found");
         }
 
         product.Update(

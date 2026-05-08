@@ -1,4 +1,7 @@
+using BuildingBlocks.Authentication;
+using BuildingBlocks.Identity;
 using BuildingBlocks.Logging;
+using BuildingBlocks.OpenApi;
 using Discount.Grpc.Data;
 using Discount.Grpc.Services;
 using Microsoft.EntityFrameworkCore;
@@ -16,13 +19,18 @@ try
     builder.Host.UseEshopSerilog(ApplicationName);
 
     // Add services to the container.
+    builder.Services.AddEshopOpenApi();
     builder.Services.AddGrpc();
+    builder.Services.AddCurrentUserProvider();
+    builder.Services.AddJwtAuthentication(builder.Configuration);
     builder.Services.AddDbContext<DiscountContext>(opts =>
         opts.UseSqlite(builder.Configuration.GetConnectionString("Database")));
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
     app.UseEshopSerilogRequestLogging();
+    app.UseJwtAuthentication();
+    app.UseEshopOpenApi(ApplicationName);
     app.MapGrpcService<DiscountService>();
     app.UseMigration();
     app.MapGet("/",

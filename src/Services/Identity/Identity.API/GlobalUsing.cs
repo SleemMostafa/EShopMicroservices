@@ -1,0 +1,17 @@
+global using BuildingBlocks;
+global using BuildingBlocks.Authentication;
+global using BuildingBlocks.Behaviors;
+global using BuildingBlocks.CQRS;
+global using BuildingBlocks.DDD;
+global using BuildingBlocks.Exceptions;
+global using BuildingBlocks.Exceptions.Handler;
+global using BuildingBlocks.Identity;
+global using BuildingBlocks.OpenApi;
+global using Carter;
+global using FluentValidation;
+global using Identity.API.Auth;
+global using Identity.API.Data;
+global using Identity.API.Domain.Users;
+global using Identity.API.Security;
+global using MediatR;
+global using Microsoft.EntityFrameworkCore;

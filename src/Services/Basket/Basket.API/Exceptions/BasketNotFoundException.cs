@@ -1,9 +1,6 @@
 ﻿namespace Basket.API.Exceptions;
 
-public class BasketNotFoundException : NotFoundException
+public sealed class BasketNotFoundException(string message) : NotFoundException(message)
 {
-    public BasketNotFoundException(string userName) : base("Basket", userName)
-    {
-
-    }
+   
 }

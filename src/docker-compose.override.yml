@@ -12,6 +12,36 @@ services:
         - "5432:5432"
     volumes:
       - postgres_catalog:/var/lib/postgresql/data
+
+  identitydb:
+    container_name: identitydb
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Your_password123
+    restart: always
+    ports:
+      - "1434:1433"
+    volumes:
+      - sqlserver_identity:/var/opt/mssql
+
+  identity.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__Database=Server=localhost;Database=IdentityDb;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=true
+      - Jwt__Issuer=EShop.Identity
+      - Jwt__Audience=EShop.Services
+      - Jwt__Secret=CHANGE_ME_DEV_SECRET_1234567890_32_CHARS_MIN
+      - Seq__ServerUrl=http://seq:80
+    depends_on:
+      - identitydb
+    ports:
+      - "6003:8080"
+      - "6063:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
  
 #  basketdb:
 #    container_name: basketdb

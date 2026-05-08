@@ -1,12 +1,6 @@
-using BuildingBlocks.Behaviors;
-using BuildingBlocks.Authentication;
-using BuildingBlocks.Exceptions.Handler;
-using BuildingBlocks.Identity;
 using BuildingBlocks.Logging;
-using BuildingBlocks.OpenApi;
-using FluentValidation;
 
-const string ApplicationName = "Catalog.API";
+const string ApplicationName = "Identity.API";
 
 EshopSerilog.ConfigureBootstrapLogger(ApplicationName);
 
@@ -18,11 +12,10 @@ try
 
     builder.Host.UseEshopSerilog(ApplicationName);
 
-    // Add services to the container.
-    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-    builder.Services.AddEshopOpenApi();
-
     var assembly = typeof(Program).Assembly;
+
+    builder.Services.AddEshopOpenApi();
+    builder.Services.AddCarter();
     builder.Services.AddMediatR(config =>
     {
         config.RegisterServicesFromAssembly(assembly);
@@ -30,32 +23,24 @@ try
         config.AddOpenBehavior(typeof(LoggingBehavior<,>));
     });
     builder.Services.AddValidatorsFromAssembly(assembly);
-    builder.Services.AddSingleton<IEshopClock, EshopClock>();
-
-
     builder.Services.AddExceptionHandler<CustomExceptionHandler>();
-    builder.Services.AddCarter();
+    builder.Services.AddSingleton<IEshopClock, EshopClock>();
     builder.Services.AddCurrentUserProvider();
     builder.Services.AddJwtAuthentication(builder.Configuration);
-    builder.Services.AddMarten(config =>
-        {
-            config.Connection(builder.Configuration.GetConnectionString("Database")!);
-            config.UseNewtonsoftForSerialization(nonPublicMembersStorage: NonPublicMembersStorage.NonPublicSetters);
-        })
-        .UseLightweightSessions();
+    builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+    builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
-    if (builder.Environment.IsDevelopment())
-    {
-        builder.Services.InitializeMartenWith<CatalogInitialData>();
-    }
+    builder.Services.AddDbContext<IdentityDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
 
     var app = builder.Build();
 
     app.UseEshopSerilogRequestLogging();
-    app.UseExceptionHandler(option => { });
+    app.UseExceptionHandler(options => { });
     app.UseJwtAuthentication();
     app.UseEshopOpenApi(ApplicationName);
     app.MapCarter();
+    await app.InitializeIdentityDatabaseAsync();
 
     app.Run();
 }

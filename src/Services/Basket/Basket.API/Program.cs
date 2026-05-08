@@ -1,5 +1,8 @@
 using Discount.Grpc;
+using BuildingBlocks.Authentication;
+using BuildingBlocks.Identity;
 using BuildingBlocks.Logging;
+using BuildingBlocks.OpenApi;
 
 const string ApplicationName = "Basket.API";
 
@@ -17,6 +20,7 @@ try
 
     //Application Services
     var assembly = typeof(Program).Assembly;
+    builder.Services.AddEshopOpenApi();
     builder.Services.AddCarter();
     builder.Services.AddMediatR(config =>
     {
@@ -48,14 +52,18 @@ try
     });
 
     //Cross-Cutting Services
+    builder.Services.AddCurrentUserProvider();
+    builder.Services.AddJwtAuthentication(builder.Configuration);
     builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
     app.UseEshopSerilogRequestLogging();
-    app.MapCarter();
     app.UseExceptionHandler(options => { });
+    app.UseJwtAuthentication();
+    app.UseEshopOpenApi(ApplicationName);
+    app.MapCarter();
 
     app.Run();
 }
