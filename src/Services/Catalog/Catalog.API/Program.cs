@@ -1,5 +1,6 @@
 using BuildingBlocks.Behaviors;
 using BuildingBlocks.Exceptions.Handler;
+using BuildingBlocks.Identity;
 using BuildingBlocks.Logging;
 using FluentValidation;
 
@@ -32,14 +33,13 @@ try
 
     builder.Services.AddExceptionHandler<CustomExceptionHandler>();
     builder.Services.AddCarter();
-    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddCurrentUserProvider();
     builder.Services.AddMarten(config =>
         {
             config.Connection(builder.Configuration.GetConnectionString("Database")!);
             config.UseNewtonsoftForSerialization(nonPublicMembersStorage: NonPublicMembersStorage.NonPublicSetters);
         })
         .UseLightweightSessions();
-    builder.Services.AddScoped<ICurrentUserProvider, CurrentUserProvider>();
 
     if (builder.Environment.IsDevelopment())
     {

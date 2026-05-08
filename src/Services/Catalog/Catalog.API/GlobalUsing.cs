@@ -2,6 +2,7 @@
 global using MediatR;
 global using BuildingBlocks;
 global using BuildingBlocks.CQRS;
+global using BuildingBlocks.Identity;
 global using Catalog.API.Domain.Products;
 global using Catalog.API.Data;
 global using Marten;

@@ -4,25 +4,16 @@ public sealed record GetProductsByCategoryQuery(string Category) : IQuery<GetPro
 
 public sealed record GetProductsByCategoryResult(IReadOnlyList<Product> Products);
 
-internal sealed class GetProductsByCategoryQueryHandler
+internal sealed class GetProductsByCategoryQueryHandler(
+    IDocumentSession session,
+    ILogger<GetProductsByCategoryQueryHandler> logger)
     : IQueryHandler<GetProductsByCategoryQuery, GetProductsByCategoryResult>
 {
-    private readonly IDocumentSession _session;
-    private readonly ILogger<GetProductsByCategoryQueryHandler> _logger;
-
-    public GetProductsByCategoryQueryHandler(
-        IDocumentSession session,
-        ILogger<GetProductsByCategoryQueryHandler> logger)
-    {
-        _session = session;
-        _logger = logger;
-    }
-
     public async Task<GetProductsByCategoryResult> Handle(GetProductsByCategoryQuery query, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("GetProductsByCategoryQueryHandler.Handle called with query {@query}", query);
+        logger.LogInformation("GetProductsByCategoryQueryHandler.Handle called with query {@query}", query);
 
-        var products = await _session.Query<Product>()
+        var products = await session.Query<Product>()
             .Where(product => product.Category.Contains(query.Category))
             .ToListAsync(cancellationToken);
 

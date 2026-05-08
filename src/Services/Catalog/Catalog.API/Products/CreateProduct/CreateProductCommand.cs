@@ -17,21 +17,21 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
     public CreateProductValidator()
     {
         RuleFor(command => command.Name)
-            .NotEmpty().WithMessage("Name is required")
-            .Length(2, 150).WithMessage("Name must be between 2 and 150 characters");
+            .NotEmpty()
+            .Length(2, 150);
         
         RuleFor(command => command.Description)
-            .NotEmpty().WithMessage("Description is required")
-            .Length(10, 500).WithMessage("Description must be between 10 and 500 characters");
+            .NotEmpty()
+            .Length(10, 500);
 
         RuleFor(command => command.ImageFile)
-            .NotEmpty().WithMessage("ImageFile is required");
+            .NotEmpty();
         
         RuleFor(command => command.Category)
-            .NotEmpty().WithMessage("Category is required");
+            .NotEmpty();
         
         RuleFor(command => command.Price)
-            .GreaterThan(0).WithMessage("Price must be greater than 0");
+            .GreaterThan(0);
     }
 }
 internal sealed class CreateProductCommandHandler(

@@ -1,4 +1,4 @@
-namespace Catalog.API.Data;
+namespace BuildingBlocks.Identity;
 
 public interface ICurrentUserProvider
 {

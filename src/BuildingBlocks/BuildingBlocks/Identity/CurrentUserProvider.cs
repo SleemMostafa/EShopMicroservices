@@ -1,4 +1,6 @@
-namespace Catalog.API.Data;
+using Microsoft.AspNetCore.Http;
+
+namespace BuildingBlocks.Identity;
 
 public sealed class CurrentUserProvider(IHttpContextAccessor httpContextAccessor) : ICurrentUserProvider
 {

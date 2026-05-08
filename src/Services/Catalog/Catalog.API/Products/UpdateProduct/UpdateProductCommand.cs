@@ -18,47 +18,35 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
     public UpdateProductValidator()
     {
         RuleFor(command => command.Name)
-            .NotEmpty().WithMessage("Name is required")
-            .Length(2, 150).WithMessage("Name must be between 2 and 150 characters");
+            .NotEmpty()
+            .Length(2, 150);
         
         RuleFor(command => command.Description)
-            .NotEmpty().WithMessage("Description is required")
-            .Length(10, 500).WithMessage("Description must be between 10 and 500 characters");
+            .NotEmpty()
+            .Length(10, 500);
 
         RuleFor(command => command.ImageFile)
-            .NotEmpty().WithMessage("ImageFile is required");
+            .NotEmpty();
         
         RuleFor(command => command.Category)
-            .NotEmpty().WithMessage("Category is required");
+            .NotEmpty();
         
         RuleFor(command => command.Price)
-            .GreaterThan(0).WithMessage("Price must be greater than 0");
+            .GreaterThan(0);
     }
 }
-internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProductCommand, UpdateProductResult>
+internal sealed class UpdateProductCommandHandler(
+    IDocumentSession session,
+    ICurrentUserProvider currentUserProvider,
+    ILogger<UpdateProductCommandHandler> logger,
+    IEshopClock clock)
+    : ICommandHandler<UpdateProductCommand, UpdateProductResult>
 {
-    private readonly IDocumentSession _session;
-    private readonly ICurrentUserProvider _currentUserProvider;
-    private readonly ILogger<UpdateProductCommandHandler> _logger;
-    private readonly IEshopClock _clock;
-
-    public UpdateProductCommandHandler(
-        IDocumentSession session,
-        ICurrentUserProvider currentUserProvider,
-        ILogger<UpdateProductCommandHandler> logger,
-        IEshopClock clock)
-    {
-        _session = session;
-        _currentUserProvider = currentUserProvider;
-        _logger = logger;
-        _clock = clock;
-    }
-
     public async Task<UpdateProductResult> Handle(UpdateProductCommand command, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("UpdateProductCommandHandler.Handle called with {command}", command);
+        logger.LogInformation("UpdateProductCommandHandler.Handle called with {command}", command);
 
-        var product = await _session.LoadAsync<Product>(command.Id, cancellationToken);
+        var product = await session.LoadAsync<Product>(command.Id, cancellationToken);
 
         if (product is null)
         {
@@ -66,21 +54,21 @@ internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProduc
         }
 
         product.Update(
-            _clock.DateTimeOffset,
+            clock.DateTimeOffset,
             command.Name,
             command.Description,
             command.Category,
             command.ImageFile,
             command.Price);
 
-        _session.Update(product);
-        _session.Store(ProductAuditTrail.Create(
+        session.Update(product);
+        session.Store(ProductAuditTrail.Create(
             product.Id,
             ProductAuditAction.Updated,
-            _currentUserProvider.UserId,
-            _clock.DateTimeOffset));
+            currentUserProvider.UserId,
+            clock.DateTimeOffset));
 
-        await _session.SaveChangesAsync(cancellationToken);
+        await session.SaveChangesAsync(cancellationToken);
         return new UpdateProductResult(true);
     }
 }
