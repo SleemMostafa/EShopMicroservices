@@ -4,7 +4,7 @@ namespace BuildingBlocks.Helpers;
 
 public static class ExpressionConverter<TTarget>
 {
-    public class ConversionVisitor(ParameterExpression newParameter, ParameterExpression oldParameter)
+    public sealed class ConversionVisitor(ParameterExpression newParameter, ParameterExpression oldParameter)
         : ExpressionVisitor
     {
         protected override Expression VisitParameter(ParameterExpression node) => newParameter; // replace all old param references with new ones

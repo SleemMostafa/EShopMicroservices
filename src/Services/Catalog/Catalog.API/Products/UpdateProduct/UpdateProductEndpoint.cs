@@ -10,7 +10,7 @@ public sealed record UpdateProductRequest(
 
 public sealed record UpdateProductResponse(bool IsSuccess);
 
-public class UpdateProductEndpoint : ICarterModule
+public sealed class UpdateProductEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {

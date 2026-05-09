@@ -11,13 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Argument.Validator" Version="2.0.0" />
     <PackageReference Include="Carter" Version="8.2.1" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.49.0" />
-    <PackageReference Include="Mapster" Version="7.4.1-pre01" />
     <PackageReference Include="Marten" Version="7.20.1" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
-    <PackageReference Include="Scrutor" Version="4.2.2" />
   </ItemGroup>
 
   <ItemGroup>

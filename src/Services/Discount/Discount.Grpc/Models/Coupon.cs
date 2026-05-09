@@ -1,6 +1,6 @@
 ﻿namespace Discount.Grpc.Models;
 
-public class Coupon
+public sealed class Coupon
 {
     public int Id { get; init; }
     public required string ProductName { get; init; }

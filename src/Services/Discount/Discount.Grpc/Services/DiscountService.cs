@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Discount.Grpc.Services;
 
-public class DiscountService : DiscountProtoService.DiscountProtoServiceBase
+public sealed class DiscountService : DiscountProtoService.DiscountProtoServiceBase
 {
     private readonly DiscountContext _context;
     private readonly ILogger<DiscountService> _logger;

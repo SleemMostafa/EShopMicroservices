@@ -129,7 +129,7 @@ public sealed class PagingOptionsRequestValidator : AbstractValidator<PagingOpti
     }
 }
 
-public class SearchPagingOptionsRequest : PagingOptionsRequest
+public sealed class SearchPagingOptionsRequest : PagingOptionsRequest
 {
     public string? Search { get; init; }
 

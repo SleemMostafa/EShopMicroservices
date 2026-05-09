@@ -1,26 +1,26 @@
-﻿namespace Basket.API.Basket.CheckoutBasket;
+namespace Basket.API.Basket.CheckoutBasket;
 
 public record CheckoutBasketRequest(BasketCheckoutDto BasketCheckoutDto);
 public record CheckoutBasketResponse(bool IsSuccess);
 
-public class CheckoutBasketEndpoints : ICarterModule
+public sealed class CheckoutBasketEndpoints : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost("/basket/checkout", async (CheckoutBasketRequest request, ISender sender) =>
-        {
-            var command = request.Adapt<CheckoutBasketCommand>();
+        app.MapPost("/basket/checkout", async (CheckoutBasketRequest request, ISender sender, CancellationToken ct) =>
+            {
+                var command = BasketMapper.ToCommand(request);
 
-            var result = await sender.Send(command);
+                var result = await sender.Send(command, ct);
 
-            var response = result.Adapt<CheckoutBasketResponse>();
+                var response = BasketMapper.ToResponse(result);
 
-            return Results.Ok(response);
-        })
-        .WithName("CheckoutBasket")
-        .Produces<CheckoutBasketResponse>(StatusCodes.Status201Created)
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .WithSummary("Checkout Basket")
-        .WithDescription("Checkout Basket");
+                return Results.Ok(response);
+            })
+            .WithName("CheckoutBasket")
+            .Produces<CheckoutBasketResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .WithSummary("Checkout basket")
+            .WithDescription("Checkout basket");
     }
 }

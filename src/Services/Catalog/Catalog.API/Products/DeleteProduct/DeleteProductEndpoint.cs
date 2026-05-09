@@ -2,7 +2,7 @@
 
 public sealed record DeleteProductResponse(bool IsSuccess);
 
-public class DeleteProductEndpoint : ICarterModule
+public sealed class DeleteProductEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {

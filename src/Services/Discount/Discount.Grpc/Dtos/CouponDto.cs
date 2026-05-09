@@ -1,6 +1,6 @@
 ﻿namespace Discount.Grpc.Dtos;
 
-public class CouponDto
+public sealed class CouponDto
 {
     public required string ProductName { get; init; }
     public required string Description { get; init; }
