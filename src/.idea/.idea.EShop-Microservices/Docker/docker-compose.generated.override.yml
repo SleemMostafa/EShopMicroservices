@@ -1,42 +1,5 @@
 # This is a generated file. Not intended for manual editing.
-version: "3.4"
 services:
-  basket.api:
-    build:
-      context: "E:\\SelfStydy\\Microservices\\EShopMicroservices\\src"
-      dockerfile: "Services/Basket/Basket.API/Dockerfile"
-      target: "base"
-      args:
-        BUILD_CONFIGURATION: "Debug"
-    command: []
-    entrypoint:
-    - "/opt/JetBrains/RiderDebuggerTools/linux-x64/JetBrains.Debugger.Worker"
-    - "--runtimeconfig"
-    - "/opt/JetBrains/RiderDebuggerTools/JetBrains.Debugger.Worker.runtimeconfig.json"
-    - "--mode=server"
-    - "--frontend-port=57000"
-    - "--backend-port=57200"
-    - "--roslyn-worker-port=57400"
-    - "--timeout=60"
-    environment:
-      DOTNET_USE_POLLING_FILE_WATCHER: "true"
-      RIDER_DEBUGGER_LOG_DIR: "/var/opt/JetBrains/RiderDebuggerTools"
-      RESHARPER_LOG_CONF: "/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
-    image: "basketapi:dev"
-    ports:
-    - "127.0.0.1:57000:57000"
-    - "127.0.0.1:57200:57200"
-    - "127.0.0.1:57400:57400"
-    volumes:
-    - "E:\\SelfStydy\\Microservices\\EShopMicroservices\\src\\Services\\Basket\\Basket.API:/app:rw"
-    - "E:\\SelfStydy\\Microservices\\EShopMicroservices\\src:/src:rw"
-    - "C:\\Users\\Saleem\\.nuget\\packages:/home/app/.nuget/packages"
-    - "C:\\Users\\Saleem\\AppData\\Local\\JetBrains\\RiderRemoteDebugger\\2026.1.1\\\
-      Linux64:/opt/JetBrains/RiderDebuggerTools"
-    - "C:\\Users\\Saleem\\AppData\\Local\\Programs\\Rider\\bin\\backend-log.xml:/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
-    - "C:\\Users\\Saleem\\AppData\\Local\\JetBrains\\Rider2026.1\\log\\DebuggerWorker\\\
-      JetBrains.Debugger.Worker.2026_5_07_18_40_59:/var/opt/JetBrains/RiderDebuggerTools:rw"
-    working_dir: "/app"
   catalog.api:
     build:
       context: "E:\\SelfStydy\\Microservices\\EShopMicroservices\\src"
@@ -52,7 +15,7 @@ services:
     - "--mode=server"
     - "--frontend-port=57000"
     - "--backend-port=57200"
-    - "--roslyn-worker-port=57401"
+    - "--roslyn-worker-port=57415"
     - "--timeout=60"
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
@@ -60,9 +23,9 @@ services:
       RESHARPER_LOG_CONF: "/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
     image: "catalogapi:dev"
     ports:
-    - "127.0.0.1:57001:57000"
-    - "127.0.0.1:57201:57200"
-    - "127.0.0.1:57401:57401"
+    - "127.0.0.1:57015:57000"
+    - "127.0.0.1:57215:57200"
+    - "127.0.0.1:57415:57415"
     volumes:
     - "E:\\SelfStydy\\Microservices\\EShopMicroservices\\src\\Services\\Catalog\\\
       Catalog.API:/app:rw"
@@ -72,12 +35,12 @@ services:
       Linux64:/opt/JetBrains/RiderDebuggerTools"
     - "C:\\Users\\Saleem\\AppData\\Local\\Programs\\Rider\\bin\\backend-log.xml:/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
     - "C:\\Users\\Saleem\\AppData\\Local\\JetBrains\\Rider2026.1\\log\\DebuggerWorker\\\
-      JetBrains.Debugger.Worker.2026_5_07_18_40_59:/var/opt/JetBrains/RiderDebuggerTools:rw"
+      JetBrains.Debugger.Worker.2026_5_09_14_17_52:/var/opt/JetBrains/RiderDebuggerTools:rw"
     working_dir: "/app"
-  discount.grpc:
+  identity.api:
     build:
       context: "E:\\SelfStydy\\Microservices\\EShopMicroservices\\src"
-      dockerfile: "Services/Discount/Discount.Grpc/Dockerfile"
+      dockerfile: "Services/Identity/Identity.API/Dockerfile"
       target: "base"
       args:
         BUILD_CONFIGURATION: "Debug"
@@ -89,25 +52,25 @@ services:
     - "--mode=server"
     - "--frontend-port=57000"
     - "--backend-port=57200"
-    - "--roslyn-worker-port=57402"
+    - "--roslyn-worker-port=57416"
     - "--timeout=60"
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
       RIDER_DEBUGGER_LOG_DIR: "/var/opt/JetBrains/RiderDebuggerTools"
       RESHARPER_LOG_CONF: "/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
-    image: "discountgrpc:dev"
+    image: "identityapi:dev"
     ports:
-    - "127.0.0.1:57002:57000"
-    - "127.0.0.1:57202:57200"
-    - "127.0.0.1:57402:57402"
+    - "127.0.0.1:57016:57000"
+    - "127.0.0.1:57216:57200"
+    - "127.0.0.1:57416:57416"
     volumes:
-    - "E:\\SelfStydy\\Microservices\\EShopMicroservices\\src\\Services\\Discount\\\
-      Discount.Grpc:/app:rw"
+    - "E:\\SelfStydy\\Microservices\\EShopMicroservices\\src\\Services\\Identity\\\
+      Identity.API:/app:rw"
     - "E:\\SelfStydy\\Microservices\\EShopMicroservices\\src:/src:rw"
     - "C:\\Users\\Saleem\\.nuget\\packages:/home/app/.nuget/packages"
     - "C:\\Users\\Saleem\\AppData\\Local\\JetBrains\\RiderRemoteDebugger\\2026.1.1\\\
       Linux64:/opt/JetBrains/RiderDebuggerTools"
     - "C:\\Users\\Saleem\\AppData\\Local\\Programs\\Rider\\bin\\backend-log.xml:/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
     - "C:\\Users\\Saleem\\AppData\\Local\\JetBrains\\Rider2026.1\\log\\DebuggerWorker\\\
-      JetBrains.Debugger.Worker.2026_5_07_18_40_59:/var/opt/JetBrains/RiderDebuggerTools:rw"
+      JetBrains.Debugger.Worker.2026_5_09_14_17_52:/var/opt/JetBrains/RiderDebuggerTools:rw"
     working_dir: "/app"

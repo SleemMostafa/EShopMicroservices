@@ -1,5 +1,3 @@
-version: '3.4'
-
 services:
   catalogdb:
     container_name: catalogdb
@@ -28,21 +26,35 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__Database=Server=localhost;Database=IdentityDb;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=true
+      - ConnectionStrings__Database=Server=identitydb,1433;Database=IdentityDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;Encrypt=True;Connect Timeout=5
       - Jwt__Issuer=EShop.Identity
       - Jwt__Audience=EShop.Services
       - Jwt__Secret=CHANGE_ME_DEV_SECRET_1234567890_32_CHARS_MIN
       - Seq__ServerUrl=http://seq:80
+      - DataProtection__KeysPath=/home/app/.aspnet/DataProtection-Keys
     depends_on:
       - identitydb
     ports:
       - "6003:8080"
-      - "6063:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
- 
+      - identity_dataprotection_keys:/home/app/.aspnet/DataProtection-Keys
+  
+  catalog.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__Database=Server=catalogdb;Port=5432;Database=CatalogDb;User Id=postgres;Password=postgres;Include Error Detail=true
+      - Seq__ServerUrl=http://seq:80
+      - DataProtection__KeysPath=/home/app/.aspnet/DataProtection-Keys
+    depends_on:
+      - catalogdb
+      - seq
+    ports:
+      - "6000:8080"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - catalog_dataprotection_keys:/home/app/.aspnet/DataProtection-Keys
 #  basketdb:
 #    container_name: basketdb
 #    environment:
@@ -59,31 +71,17 @@ services:
 #    restart: always
 #    ports:
 #      - "6379:6379"
-#  seq:
-#    container_name: seq
-#    environment:
-#      - ACCEPT_EULA=Y
-#    restart: always
-#    ports:
-#      - "5341:80"
-#    volumes:
-#      - seq_data:/data
-#  catalog.api:
-#    environment:
-#      - ASPNETCORE_ENVIRONMENT=Development
-#      - ASPNETCORE_HTTP_PORTS=8080
-#      - ASPNETCORE_HTTPS_PORTS=8081
-#      - ConnectionStrings__Database=Server=catalogdb;Port=5432;Database=CatalogDb;User Id=postgres;Password=postgres;Include Error Detail=true
-#      - Seq__ServerUrl=http://seq:80
-#    depends_on:
-#      - catalogdb
-#      - seq
-#    ports:
-#      - "6000:8080"
-#      - "6060:8081"
-#    volumes:
-#      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-#      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+  seq:
+    container_name: seq
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true
+    restart: always
+    ports:
+      - "5341:80"
+    volumes:
+      - seq_data:/data
+  
 #
 #  basket.api:
 #    environment:

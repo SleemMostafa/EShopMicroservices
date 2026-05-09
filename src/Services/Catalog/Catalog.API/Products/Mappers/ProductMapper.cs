@@ -48,7 +48,9 @@ public static class ProductMapper
 
     public static GetProductsResponse ToResponse(GetProductsResult result)
     {
-        return new GetProductsResponse(result.Products.Select(ToDto).ToList());
+        return new GetProductsResponse(
+            result.Products.Items.Select(ToDto).ToList(),
+            result.Products.PageInfo);
     }
 
     public static GetProductsByCategoryResponse ToResponse(GetProductsByCategoryResult result)

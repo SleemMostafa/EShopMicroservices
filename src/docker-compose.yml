@@ -1,5 +1,3 @@
-version: '3.4'
-
 services:
   catalogdb:
     image: postgres:17
@@ -7,26 +5,26 @@ services:
   identitydb:
     image: mcr.microsoft.com/mssql/server:2022-latest
 
+  seq:
+    image: datalust/seq
+
   identity.api:
     image: ${DOCKER_REGISTRY-}identityapi
     build:
       context: .
       dockerfile: Services/Identity/Identity.API/Dockerfile
 
+  catalog.api:
+    image: ${DOCKER_REGISTRY-}catalogapi
+    build:
+      context: .
+      dockerfile: Services/Catalog/Catalog.API/Dockerfile
+
 #  basketdb:
 #    image: postgres
 #
 #  distributedcache:
 #    image: redis
-#
-#  seq:
-#    image: datalust/seq
-#
-#  catalog.api:
-#    image: ${DOCKER_REGISTRY-}catalogapi
-#    build:
-#      context: .
-#      dockerfile: Services/Catalog/Catalog.API/Dockerfile
 #
 #  basket.api:
 #    image: ${DOCKER_REGISTRY-}basketapi
@@ -43,7 +41,9 @@ services:
 volumes:
   postgres_catalog:
   sqlserver_identity:
+  seq_data:
+  catalog_dataprotection_keys:
+  identity_dataprotection_keys:
 #  postgres_basket:
-#  seq_data:
 
 

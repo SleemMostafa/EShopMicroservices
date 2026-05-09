@@ -1,16 +1,15 @@
 using BuildingBlocks.Logging;
+using BuildingBlocks.Security;
 
-const string ApplicationName = "Identity.API";
-
-EshopSerilog.ConfigureBootstrapLogger(ApplicationName);
+EshopSerilog.ConfigureBootstrapLogger(ApplicationNames.IdentityApi);
 
 try
 {
-    EshopSerilog.LogStarting(ApplicationName);
+    EshopSerilog.LogStarting(ApplicationNames.IdentityApi);
 
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Host.UseEshopSerilog(ApplicationName);
+    builder.Host.UseEshopSerilog(ApplicationNames.IdentityApi);
 
     var assembly = typeof(Program).Assembly;
 
@@ -24,6 +23,7 @@ try
     });
     builder.Services.AddValidatorsFromAssembly(assembly);
     builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+    builder.Services.AddEshopDataProtection(builder.Configuration, ApplicationNames.IdentityApi);
     builder.Services.AddSingleton<IEshopClock, EshopClock>();
     builder.Services.AddCurrentUserProvider();
     builder.Services.AddJwtAuthentication(builder.Configuration);
@@ -38,7 +38,7 @@ try
     app.UseEshopSerilogRequestLogging();
     app.UseExceptionHandler(options => { });
     app.UseJwtAuthentication();
-    app.UseEshopOpenApi(ApplicationName);
+    app.UseEshopOpenApi(ApplicationNames.IdentityApi);
     app.MapCarter();
     await app.InitializeIdentityDatabaseAsync();
 
@@ -46,7 +46,7 @@ try
 }
 catch (Exception exception)
 {
-    EshopSerilog.LogFatal(exception, ApplicationName);
+    EshopSerilog.LogFatal(exception, ApplicationNames.IdentityApi);
 }
 finally
 {

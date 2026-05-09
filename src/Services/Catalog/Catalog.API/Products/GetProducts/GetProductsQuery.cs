@@ -1,8 +1,8 @@
-﻿namespace Catalog.API.Products.GetProducts;
+namespace Catalog.API.Products.GetProducts;
 
-public sealed record GetProductsQuery() : IQuery<GetProductsResult>;
+public sealed record GetProductsQuery(PagingOptionsRequest PagingOptions) : IQuery<GetProductsResult>;
 
-public record GetProductsResult(IReadOnlyList<Product> Products);
+public sealed record GetProductsResult(PaginatedList<Product> Products);
 
 internal sealed class GetProductsQueryHandler(IDocumentSession session, ILogger<GetProductsQueryHandler> logger)
     : IQueryHandler<GetProductsQuery, GetProductsResult>
@@ -11,8 +11,9 @@ internal sealed class GetProductsQueryHandler(IDocumentSession session, ILogger<
     {
         logger.LogInformation("GetProductsQueryHandler.Handle called with {@Query}", query);
 
-        var products = await session.Query<Product>()
-            .ToListAsync(cancellationToken);
+        var products = await session.Query<Product>().ToPagedListAsync(
+            query.PagingOptions,
+            cancellationToken: cancellationToken);
 
         return new GetProductsResult(products);
     }

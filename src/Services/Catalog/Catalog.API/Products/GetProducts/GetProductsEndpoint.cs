@@ -1,14 +1,16 @@
-﻿namespace Catalog.API.Products.GetProducts;
+﻿using PageInfo = BuildingBlocks.Paginated.PageInfo;
 
-public sealed record GetProductsResponse(IEnumerable<ProductDto> Products);
+namespace Catalog.API.Products.GetProducts;
+
+public sealed record GetProductsResponse(IReadOnlyList<ProductDto> Products, PageInfo PageInfo);
 
 public sealed class GetProductsEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet("/products", async (ISender sender, CancellationToken ct) =>
+        app.MapGet("/products", async ([AsParameters] PagingOptionsRequest request, ISender sender, CancellationToken ct) =>
             {
-                var result = await sender.Send(new GetProductsQuery(), ct);
+                var result = await sender.Send(new GetProductsQuery(request), ct);
 
                 var response = ProductMapper.ToResponse(result);
 

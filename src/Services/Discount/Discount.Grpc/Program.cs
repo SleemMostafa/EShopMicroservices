@@ -1,26 +1,27 @@
+using BuildingBlocks;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Identity;
 using BuildingBlocks.Logging;
 using BuildingBlocks.OpenApi;
+using BuildingBlocks.Security;
 using Discount.Grpc.Data;
 using Discount.Grpc.Services;
 using Microsoft.EntityFrameworkCore;
 
-const string ApplicationName = "Discount.Grpc";
-
-EshopSerilog.ConfigureBootstrapLogger(ApplicationName);
+EshopSerilog.ConfigureBootstrapLogger(ApplicationNames.DiscountGrpc);
 
 try
 {
-    EshopSerilog.LogStarting(ApplicationName);
+    EshopSerilog.LogStarting(ApplicationNames.DiscountGrpc);
 
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Host.UseEshopSerilog(ApplicationName);
+    builder.Host.UseEshopSerilog(ApplicationNames.DiscountGrpc);
 
     // Add services to the container.
     builder.Services.AddEshopOpenApi();
     builder.Services.AddGrpc();
+    builder.Services.AddEshopDataProtection(builder.Configuration, ApplicationNames.DiscountGrpc);
     builder.Services.AddCurrentUserProvider();
     builder.Services.AddJwtAuthentication(builder.Configuration);
     builder.Services.AddDbContext<DiscountContext>(opts =>
@@ -30,7 +31,7 @@ try
     // Configure the HTTP request pipeline.
     app.UseEshopSerilogRequestLogging();
     app.UseJwtAuthentication();
-    app.UseEshopOpenApi(ApplicationName);
+    app.UseEshopOpenApi(ApplicationNames.DiscountGrpc);
     app.MapGrpcService<DiscountService>();
     app.UseMigration();
     app.MapGet("/",
@@ -41,7 +42,7 @@ try
 }
 catch (Exception exception)
 {
-    EshopSerilog.LogFatal(exception, ApplicationName);
+    EshopSerilog.LogFatal(exception, ApplicationNames.DiscountGrpc);
 }
 finally
 {

@@ -1,20 +1,20 @@
+using BuildingBlocks;
 using Discount.Grpc;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Identity;
 using BuildingBlocks.Logging;
 using BuildingBlocks.OpenApi;
+using BuildingBlocks.Security;
 
-const string ApplicationName = "Basket.API";
-
-EshopSerilog.ConfigureBootstrapLogger(ApplicationName);
+EshopSerilog.ConfigureBootstrapLogger(ApplicationNames.BasketApi);
 
 try
 {
-    EshopSerilog.LogStarting(ApplicationName);
+    EshopSerilog.LogStarting(ApplicationNames.BasketApi);
 
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Host.UseEshopSerilog(ApplicationName);
+    builder.Host.UseEshopSerilog(ApplicationNames.BasketApi);
 
     // Add services to the container.
 
@@ -52,6 +52,7 @@ try
     });
 
     //Cross-Cutting Services
+    builder.Services.AddEshopDataProtection(builder.Configuration, ApplicationNames.BasketApi);
     builder.Services.AddCurrentUserProvider();
     builder.Services.AddJwtAuthentication(builder.Configuration);
     builder.Services.AddExceptionHandler<CustomExceptionHandler>();
@@ -62,14 +63,14 @@ try
     app.UseEshopSerilogRequestLogging();
     app.UseExceptionHandler(options => { });
     app.UseJwtAuthentication();
-    app.UseEshopOpenApi(ApplicationName);
+    app.UseEshopOpenApi(ApplicationNames.BasketApi);
     app.MapCarter();
 
     app.Run();
 }
 catch (Exception exception)
 {
-    EshopSerilog.LogFatal(exception, ApplicationName);
+    EshopSerilog.LogFatal(exception, ApplicationNames.BasketApi);
 }
 finally
 {

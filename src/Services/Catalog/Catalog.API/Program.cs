@@ -1,67 +1,25 @@
-using BuildingBlocks.Behaviors;
-using BuildingBlocks.Authentication;
-using BuildingBlocks.Exceptions.Handler;
-using BuildingBlocks.Identity;
+using Catalog.API;
 using BuildingBlocks.Logging;
-using BuildingBlocks.OpenApi;
-using FluentValidation;
 
-const string ApplicationName = "Catalog.API";
-
-EshopSerilog.ConfigureBootstrapLogger(ApplicationName);
+EshopSerilog.ConfigureBootstrapLogger(ApplicationNames.CatalogApi);
 
 try
 {
-    EshopSerilog.LogStarting(ApplicationName);
+    EshopSerilog.LogStarting(ApplicationNames.CatalogApi);
 
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Host.UseEshopSerilog(ApplicationName);
-
-    // Add services to the container.
-    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-    builder.Services.AddEshopOpenApi();
-
-    var assembly = typeof(Program).Assembly;
-    builder.Services.AddMediatR(config =>
-    {
-        config.RegisterServicesFromAssembly(assembly);
-        config.AddOpenBehavior(typeof(ValidationBehavior<,>));
-        config.AddOpenBehavior(typeof(LoggingBehavior<,>));
-    });
-    builder.Services.AddValidatorsFromAssembly(assembly);
-    builder.Services.AddSingleton<IEshopClock, EshopClock>();
-
-
-    builder.Services.AddExceptionHandler<CustomExceptionHandler>();
-    builder.Services.AddCarter();
-    builder.Services.AddCurrentUserProvider();
-    builder.Services.AddJwtAuthentication(builder.Configuration);
-    builder.Services.AddMarten(config =>
-        {
-            config.Connection(builder.Configuration.GetConnectionString("Database")!);
-            config.UseNewtonsoftForSerialization(nonPublicMembersStorage: NonPublicMembersStorage.NonPublicSetters);
-        })
-        .UseLightweightSessions();
-
-    if (builder.Environment.IsDevelopment())
-    {
-        builder.Services.InitializeMartenWith<CatalogInitialData>();
-    }
+    builder.AddCatalogServices(ApplicationNames.CatalogApi);
 
     var app = builder.Build();
 
-    app.UseEshopSerilogRequestLogging();
-    app.UseExceptionHandler(option => { });
-    app.UseJwtAuthentication();
-    app.UseEshopOpenApi(ApplicationName);
-    app.MapCarter();
+    app.UseCatalogServices(ApplicationNames.CatalogApi);
 
     app.Run();
 }
 catch (Exception exception)
 {
-    EshopSerilog.LogFatal(exception, ApplicationName);
+    EshopSerilog.LogFatal(exception, ApplicationNames.CatalogApi);
 }
 finally
 {
