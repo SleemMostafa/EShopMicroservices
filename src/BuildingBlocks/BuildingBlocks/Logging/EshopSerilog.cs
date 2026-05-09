@@ -13,7 +13,7 @@ public static class EshopSerilog
 
     public static void ConfigureBootstrapLogger(string applicationName)
     {
-        Log.Logger = CreateLoggerConfiguration(applicationName)
+        Log.Logger = CreateLoggerConfiguration(applicationName, GetEnvironmentName())
             .WriteToSeqIfConfigured(
                 Environment.GetEnvironmentVariable("Seq__ServerUrl") ??
                 Environment.GetEnvironmentVariable("SEQ_SERVER_URL"),
@@ -26,7 +26,10 @@ public static class EshopSerilog
     {
         return hostBuilder.UseSerilog((context, services, loggerConfiguration) =>
         {
-            CreateLoggerConfiguration(applicationName, loggerConfiguration)
+            CreateLoggerConfiguration(
+                    applicationName,
+                    context.HostingEnvironment.EnvironmentName,
+                    loggerConfiguration)
                 .WriteToSeqIfConfigured(
                     context.Configuration["Seq:ServerUrl"],
                     context.Configuration["Seq:ApiKey"])
@@ -70,13 +73,16 @@ public static class EshopSerilog
         return Log.CloseAndFlushAsync();
     }
 
-    private static LoggerConfiguration CreateLoggerConfiguration(string applicationName)
+    private static LoggerConfiguration CreateLoggerConfiguration(
+        string applicationName,
+        string environmentName)
     {
-        return CreateLoggerConfiguration(applicationName, new LoggerConfiguration());
+        return CreateLoggerConfiguration(applicationName, environmentName, new LoggerConfiguration());
     }
 
     private static LoggerConfiguration CreateLoggerConfiguration(
         string applicationName,
+        string environmentName,
         LoggerConfiguration loggerConfiguration)
     {
         return loggerConfiguration
@@ -90,7 +96,15 @@ public static class EshopSerilog
             .MinimumLevel.Override("System", LogEventLevel.Warning)
             .Enrich.FromLogContext()
             .Enrich.WithProperty("Application", applicationName)
+            .Enrich.WithProperty("Environment", environmentName)
             .WriteTo.Console(outputTemplate: ConsoleOutputTemplate);
+    }
+
+    private static string GetEnvironmentName()
+    {
+        return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ??
+               Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ??
+               Environments.Production;
     }
 
     private static LoggerConfiguration WriteToSeqIfConfigured(
