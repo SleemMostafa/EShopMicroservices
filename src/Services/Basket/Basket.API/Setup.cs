@@ -13,6 +13,7 @@ public static class Setup
         string applicationName)
     {
         builder.Host.UseEshopSerilog(applicationName);
+        builder.AddServiceDefaults();
 
         var assembly = typeof(Setup).Assembly;
 
@@ -37,6 +38,7 @@ public static class Setup
         {
             options.Configuration = builder.Configuration.GetConnectionString("Redis");
         });
+        builder.Services.AddScoped<ICacheService, DistributedCacheService>();
 
         builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(options =>
         {
@@ -59,6 +61,7 @@ public static class Setup
         app.UseExceptionHandler(_ => { });
         app.UseJwtAuthentication();
         app.UseEshopOpenApi(applicationName);
+        app.MapDefaultEndpoints();
         app.MapCarter();
 
         return app;

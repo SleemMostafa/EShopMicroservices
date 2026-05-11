@@ -20,30 +20,30 @@ services:
       context: .
       dockerfile: Services/Catalog/Catalog.API/Dockerfile
 
-#  basketdb:
-#    image: postgres
-#
-#  distributedcache:
-#    image: redis
-#
-#  basket.api:
-#    image: ${DOCKER_REGISTRY-}basketapi
-#    build:
-#      context: .
-#      dockerfile: Services/Basket/Basket.API/Dockerfile
-#
-#  discount.grpc:
-#    image: ${DOCKER_REGISTRY-}discountgrpc
-#    build:
-#      context: .
-#      dockerfile: Services/Discount/Discount.Grpc/Dockerfile
+  basketdb:
+    image: postgres:17
+
+  distributedcache:
+    image: redis
+
+  basket.api:
+    image: ${DOCKER_REGISTRY-}basketapi
+    build:
+      context: .
+      dockerfile: Services/Basket/Basket.API/Dockerfile
+
+  discount.grpc:
+    image: ${DOCKER_REGISTRY-}discountgrpc
+    build:
+      context: .
+      dockerfile: Services/Discount/Discount.Grpc/Dockerfile
 
 volumes:
   postgres_catalog:
+  postgres_basket:
   sqlserver_identity:
   seq_data:
   catalog_dataprotection_keys:
   identity_dataprotection_keys:
-#  postgres_basket:
-
-
+  basket_dataprotection_keys:
+  discount_dataprotection_keys:

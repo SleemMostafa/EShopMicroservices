@@ -10,6 +10,7 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Host.UseEshopSerilog(ApplicationNames.IdentityApi);
+    builder.AddServiceDefaults();
 
     var assembly = typeof(Program).Assembly;
 
@@ -39,6 +40,7 @@ try
     app.UseExceptionHandler(options => { });
     app.UseJwtAuthentication();
     app.UseEshopOpenApi(ApplicationNames.IdentityApi);
+    app.MapDefaultEndpoints();
     app.MapCarter();
     await app.InitializeIdentityDatabaseAsync();
 

@@ -1,8 +1,6 @@
-using Microsoft.Extensions.Caching.Distributed;
-
 namespace Basket.API.Basket.CheckoutBasket;
 
-public record CheckoutBasketCommand(BasketCheckoutDto BasketCheckoutDto)
+public sealed record CheckoutBasketCommand(BasketCheckoutDto BasketCheckoutDto)
     : ICommand<CheckoutBasketResult>;
 public record CheckoutBasketResult(bool IsSuccess);
 
@@ -11,12 +9,12 @@ public sealed class CheckoutBasketCommandValidator
 {
     public CheckoutBasketCommandValidator()
     {
-        RuleFor(command => command.BasketCheckoutDto).NotNull().WithMessage("BasketCheckoutDto can't be null");
-        RuleFor(command => command.BasketCheckoutDto.UserName).NotEmpty().WithMessage("UserName is required");
+        RuleFor(command => command.BasketCheckoutDto).NotNull();
+        RuleFor(command => command.BasketCheckoutDto.UserName).NotEmpty();
     }
 }
 
-public sealed class CheckoutBasketCommandHandler(IDocumentSession session, IDistributedCache cache, ILogger<CheckoutBasketCommandHandler> logger)
+public sealed class CheckoutBasketCommandHandler(IDocumentSession session, ICacheService cache, ILogger<CheckoutBasketCommandHandler> logger)
     : ICommandHandler<CheckoutBasketCommand, CheckoutBasketResult>
 {
     public async Task<CheckoutBasketResult> Handle(CheckoutBasketCommand command, CancellationToken cancellationToken)

@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks\BuildingBlocks.csproj" />
+    <ProjectReference Include="..\..\..\EShop.ServiceDefaults\EShop.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

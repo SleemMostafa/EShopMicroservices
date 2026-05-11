@@ -1,7 +1,7 @@
-namespace Basket.API.Basket.CheckoutBasket;
+﻿namespace Basket.API.Basket.CheckoutBasket;
 
-public record CheckoutBasketRequest(BasketCheckoutDto BasketCheckoutDto);
-public record CheckoutBasketResponse(bool IsSuccess);
+public sealed record CheckoutBasketRequest(BasketCheckoutDto BasketCheckoutDto);
+public sealed record CheckoutBasketResponse(bool IsSuccess);
 
 public sealed class CheckoutBasketEndpoints : ICarterModule
 {
@@ -18,7 +18,7 @@ public sealed class CheckoutBasketEndpoints : ICarterModule
                 return Results.Ok(response);
             })
             .WithName("CheckoutBasket")
-            .Produces<CheckoutBasketResponse>(StatusCodes.Status200OK)
+            .Produces<CheckoutBasketResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithSummary("Checkout basket")
             .WithDescription("Checkout basket");

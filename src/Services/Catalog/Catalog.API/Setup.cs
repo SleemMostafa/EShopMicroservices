@@ -18,6 +18,7 @@ public static class Setup
         string applicationName)
     {
         builder.Host.UseEshopSerilog(applicationName);
+        builder.AddServiceDefaults();
 
         var assembly = typeof(Setup).Assembly;
 
@@ -63,6 +64,7 @@ public static class Setup
         app.UseExceptionHandler(_ => { });
         app.UseJwtAuthentication();
         app.UseEshopOpenApi(applicationName);
+        app.MapDefaultEndpoints();
         app.MapHealthChecks("/health", new HealthCheckOptions
             {
                 ResponseWriter = HealthCheckResponseWriter.WriteAsync

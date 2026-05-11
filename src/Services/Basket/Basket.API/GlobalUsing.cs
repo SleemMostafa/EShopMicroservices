@@ -1,4 +1,5 @@
 global using Basket.API.Basket.Mappers;
+global using Basket.API.Data.Caching;
 global using Basket.API.Domain.ShoppingCarts;
 global using Basket.API.Dtos;
 global using Basket.API.Exceptions;

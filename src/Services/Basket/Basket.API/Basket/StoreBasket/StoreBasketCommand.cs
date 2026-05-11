@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
 using Discount.Grpc;
-using Microsoft.Extensions.Caching.Distributed;
 
 namespace Basket.API.Basket.StoreBasket;
 
@@ -12,16 +10,14 @@ public sealed class StoreBasketCommandValidator : AbstractValidator<StoreBasketC
     public StoreBasketCommandValidator()
     {
         RuleFor(command => command.Cart).NotNull();
-        RuleFor(command => command.Cart.UserName)
-            .NotEmpty();
-        RuleFor(command => command.Cart.Items)
-            .NotEmpty();
+        RuleFor(command => command.Cart.UserName).NotEmpty();
+        RuleFor(command => command.Cart.Items).NotEmpty();
     }
 }
 
 public sealed class StoreBasketCommandHandler(
     IDocumentSession session,
-    IDistributedCache cache,
+    ICacheService cache,
     DiscountProtoService.DiscountProtoServiceClient discountProto,
     ILogger<StoreBasketCommandHandler> logger)
     : ICommandHandler<StoreBasketCommand, StoreBasketResult>
@@ -35,10 +31,7 @@ public sealed class StoreBasketCommandHandler(
         session.Store(command.Cart);
         await session.SaveChangesAsync(cancellationToken);
 
-        await cache.SetStringAsync(
-            command.Cart.UserName,
-            JsonSerializer.Serialize(BasketMapper.ToDto(command.Cart)),
-            cancellationToken);
+        await cache.SetAsync(command.Cart.UserName, BasketMapper.ToDto(command.Cart), cancellationToken);
 
         return new StoreBasketResult(command.Cart.UserName);
     }
