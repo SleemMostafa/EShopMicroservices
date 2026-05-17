@@ -37,11 +37,24 @@ services:
     build:
       context: .
       dockerfile: Services/Discount/Discount.Grpc/Dockerfile
+  
+  ordering.api:
+    image: ${DOCKER_REGISTRY-}orderingapi
+    build:
+      context: .
+      dockerfile: Services/Ordering/Ordering.API/Dockerfile
+
+  orderdb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+
+  messagebroker:
+    image: rabbitmq:3-management
 
 volumes:
   postgres_catalog:
   postgres_basket:
   sqlserver_identity:
+  sqlserver_order:
   seq_data:
   catalog_dataprotection_keys:
   identity_dataprotection_keys:

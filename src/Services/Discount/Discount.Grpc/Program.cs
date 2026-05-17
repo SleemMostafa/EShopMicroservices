@@ -1,5 +1,6 @@
 using BuildingBlocks.Logging;
 using Discount.Grpc;
+using Microsoft.Extensions.Hosting;
 
 EshopSerilog.ConfigureBootstrapLogger(ApplicationNames.DiscountGrpc);
 
@@ -19,6 +20,11 @@ try
 }
 catch (Exception exception)
 {
+    if (exception is HostAbortedException)
+    {
+        return;
+    }
+
     EshopSerilog.LogFatal(exception, ApplicationNames.DiscountGrpc);
 }
 finally

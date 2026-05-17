@@ -1,5 +1,3 @@
-using Discount.Grpc.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Discount.Grpc.Diagnostics;

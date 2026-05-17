@@ -3,6 +3,7 @@ using BuildingBlocks.Logging;
 using BuildingBlocks.OpenApi;
 using BuildingBlocks.Security;
 using Discount.Grpc;
+using Grpc.Net.Client;
 
 namespace Basket.API;
 
@@ -40,9 +41,12 @@ public static class Setup
         });
         builder.Services.AddScoped<ICacheService, DistributedCacheService>();
 
-        builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(options =>
+        builder.Services.AddSingleton(_ =>
         {
-            options.Address = new Uri(builder.Configuration["GrpcSettings:DiscountUrl"]!);
+            var discountUrl = builder.Configuration["GrpcSettings:DiscountUrl"]!;
+            var channel = GrpcChannel.ForAddress(discountUrl);
+
+            return new DiscountProtoService.DiscountProtoServiceClient(channel);
         });
 
         builder.Services.AddEshopDataProtection(builder.Configuration, applicationName);

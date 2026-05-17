@@ -43,8 +43,8 @@ public sealed class StoreBasketCommandHandler(
             var coupon = await discountProto.GetDiscountAsync(
                 new GetDiscountRequest { ProductName = item.ProductName },
                 cancellationToken: cancellationToken);
-
-            item.UpdatePrice(coupon.Amount);
+            var newPrice = item.Price - coupon.Amount;
+            item.UpdatePrice(newPrice);
         }
     }
 }

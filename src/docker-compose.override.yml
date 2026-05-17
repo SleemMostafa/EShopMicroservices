@@ -103,7 +103,29 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - basket_dataprotection_keys:/home/app/.aspnet/DataProtection-Keys
+  
+  orderdb:
+    container_name: orderdb
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=SwN12345678
+    restart: always
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_order:/var/opt/mssql
 
+  messagebroker:
+    container_name: messagebroker
+    hostname: ecommerce-mq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  
   discount.grpc:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -118,3 +140,20 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - discount_dataprotection_keys:/home/app/.aspnet/DataProtection-Keys
+  
+  ordering.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__Database=Server=orderdb;Database=OrderDb;User Id=sa;Password=SwN12345678;Encrypt=False;TrustServerCertificate=True
+      - MessageBroker__Host=amqp://ecommerce-mq:5672
+      - MessageBroker__UserName=guest
+      - MessageBroker__Password=guest
+      - FeatureManagement__OrderFullfilment=false
+    depends_on:
+      - orderdb
+      - messagebroker
+    ports:
+      - "6004:8080"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro

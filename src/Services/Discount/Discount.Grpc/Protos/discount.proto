@@ -8,11 +8,12 @@ package discount;
 service DiscountProtoService {
   // Discount CRUD Operations
   rpc GetDiscount (GetDiscountRequest) returns (CouponModel);
+  rpc GetAllDiscounts (GetAllDiscountsRequest) returns (GetAllDiscountsResponse);
   rpc CreateDiscount (CreateDiscountRequest) returns (CouponModel);
   rpc UpdateDiscount (UpdateDiscountRequest) returns (CouponModel);
   rpc DeleteDiscount (DeleteDiscountRequest) returns (DeleteDiscountResponse);
 }
-
+message GetAllDiscountsRequest {}
 message GetDiscountRequest
 {
   string productName = 1;
@@ -39,4 +40,8 @@ message DeleteDiscountRequest {
 
 message DeleteDiscountResponse {
   bool success = 1;
+}
+
+message GetAllDiscountsResponse {
+  repeated CouponModel coupons = 1;
 }

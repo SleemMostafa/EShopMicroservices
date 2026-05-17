@@ -1,6 +1,5 @@
 using Discount.Grpc.Models;
 using Grpc.Core;
-using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace Discount.Grpc.Discounts;
@@ -12,7 +11,7 @@ public sealed class DiscountService(DiscountContext context, ILogger<DiscountSer
         CreateDiscountRequest request,
         ServerCallContext serverCallContext)
     {
-        var coupon = request.Coupon.Adapt<Coupon>();
+        var coupon = CouponMapper.ToCoupon(request.Coupon);
         if (coupon is null)
         {
             throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid request object."));
@@ -23,7 +22,7 @@ public sealed class DiscountService(DiscountContext context, ILogger<DiscountSer
 
         logger.LogInformation("Discount is successfully created. ProductName : {ProductName}", coupon.ProductName);
 
-        return coupon.Adapt<CouponModel>();
+        return CouponMapper.ToCouponModel(coupon);
     }
 
     public override async Task<CouponModel> GetDiscount(
@@ -48,14 +47,14 @@ public sealed class DiscountService(DiscountContext context, ILogger<DiscountSer
             coupon.ProductName,
             coupon.Amount);
 
-        return coupon.Adapt<CouponModel>();
+        return CouponMapper.ToCouponModel(coupon);
     }
 
     public override async Task<CouponModel> UpdateDiscount(
         UpdateDiscountRequest request,
         ServerCallContext serverCallContext)
     {
-        var coupon = request.Coupon.Adapt<Coupon>();
+        var coupon = CouponMapper.ToCoupon(request.Coupon);
         if (coupon is null)
         {
             throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid request object."));
@@ -66,7 +65,7 @@ public sealed class DiscountService(DiscountContext context, ILogger<DiscountSer
 
         logger.LogInformation("Discount is successfully updated. ProductName : {ProductName}", coupon.ProductName);
 
-        return coupon.Adapt<CouponModel>();
+        return CouponMapper.ToCouponModel(coupon);
     }
 
     public override async Task<DeleteDiscountResponse> DeleteDiscount(
@@ -91,5 +90,20 @@ public sealed class DiscountService(DiscountContext context, ILogger<DiscountSer
         logger.LogInformation("Discount is successfully deleted. ProductName : {ProductName}", request.ProductName);
 
         return new DeleteDiscountResponse { Success = true };
+    }
+    public override async Task<GetAllDiscountsResponse> GetAllDiscounts(
+        GetAllDiscountsRequest request,
+        ServerCallContext serverCallContext)
+    {
+        var coupons = await context
+            .Coupons
+            .ToListAsync(serverCallContext.CancellationToken);
+
+        var response = new GetAllDiscountsResponse();
+        response.Coupons.AddRange(coupons.Select(CouponMapper.ToCouponModel));
+
+        logger.LogInformation("Retrieved all discounts. Count : {Count}", coupons.Count);
+
+        return response;
     }
 }
