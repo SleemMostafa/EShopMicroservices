@@ -45,6 +45,10 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ConnectionStrings__Database=Server=catalogdb;Port=5432;Database=CatalogDb;User Id=postgres;Password=postgres;Include Error Detail=true
+      - Jwt__Issuer=EShop.Identity
+      - Jwt__Audience=EShop.Services
+      - Jwt__Secret=CHANGE_ME_DEV_SECRET_1234567890_32_CHARS_MIN
+      - Jwt__ClockSkewSeconds=30
       - Seq__ServerUrl=http://seq:80
       - DataProtection__KeysPath=/home/app/.aspnet/DataProtection-Keys
     depends_on:
@@ -157,3 +161,25 @@ services:
       - "6004:8080"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+
+  yarpapigateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - Seq__ServerUrl=http://seq:80
+      - Jwt__Issuer=EShop.Identity
+      - Jwt__Audience=EShop.Services
+      - Jwt__Secret=CHANGE_ME_DEV_SECRET_1234567890_32_CHARS_MIN
+      - Jwt__ClockSkewSeconds=30
+      - ReverseProxy__Clusters__catalog__Destinations__catalogApi__Address=http://catalog.api:8080/
+      - ReverseProxy__Clusters__basket__Destinations__basketApi__Address=http://basket.api:8080/
+      - ReverseProxy__Clusters__identity__Destinations__identityApi__Address=http://identity.api:8080/
+      - ReverseProxy__Clusters__ordering__Destinations__orderingApi__Address=http://ordering.api:8080/
+    depends_on:
+      - catalog.api
+      - basket.api
+      - identity.api
+      - ordering.api
+      - seq
+    ports:
+      - "6005:8080"

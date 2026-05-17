@@ -6,4 +6,5 @@ public static class ApplicationNames
     public const string BasketApi = "Basket.API";
     public const string DiscountGrpc = "Discount.Grpc";
     public const string IdentityApi = "Identity.API";
+    public const string YarpApiGateway = "YarpApiGateway";
 }

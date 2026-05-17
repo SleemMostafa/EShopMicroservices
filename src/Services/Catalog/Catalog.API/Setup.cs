@@ -6,6 +6,7 @@ using BuildingBlocks.OpenApi;
 using BuildingBlocks.Security;
 using Catalog.API.Diagnostics;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -37,6 +38,12 @@ public static class Setup
         builder.Services.AddEshopDataProtection(builder.Configuration, applicationName);
         builder.Services.AddCurrentUserProvider();
         builder.Services.AddJwtAuthentication(builder.Configuration);
+        builder.Services.AddAuthorization(options =>
+        {
+            options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+        });
         builder.Services.AddHealthChecks()
             .AddCheck("catalog-api", () => HealthCheckResult.Healthy("Catalog API is healthy."))
             .AddCheck<PostgresHealthCheck>("catalog-postgres");

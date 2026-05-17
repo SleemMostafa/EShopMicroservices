@@ -45,7 +45,8 @@ public static class EshopOpenApiExtensions
     {
         if (app.Environment.IsDevelopment())
         {
-            app.MapOpenApi();
+            app.MapOpenApi()
+                .AllowAnonymous();
             app.MapGet("/swagger", () => Results.Redirect("/scalar"))
                 .AllowAnonymous();
             app.MapGet("/swagger/index.html", () => Results.Redirect("/scalar"))
