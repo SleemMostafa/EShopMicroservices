@@ -94,6 +94,9 @@ services:
       - ConnectionStrings__Database=Server=basketdb;Port=5432;Database=BasketDb;User Id=postgres;Password=postgres;Include Error Detail=true
       - ConnectionStrings__Redis=distributedcache:6379
       - GrpcSettings__DiscountUrl=http://discount.grpc:8080
+      - MessageBroker__Host=amqp://ecommerce-mq:5672
+      - MessageBroker__UserName=guest
+      - MessageBroker__Password=guest
       - Seq__ServerUrl=http://seq:80
       - DataProtection__KeysPath=/home/app/.aspnet/DataProtection-Keys
 
@@ -101,6 +104,7 @@ services:
       - basketdb
       - distributedcache
       - discount.grpc
+      - messagebroker
       - seq
     ports:
       - "6001:8080"

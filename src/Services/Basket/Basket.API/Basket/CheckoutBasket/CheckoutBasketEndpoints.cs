@@ -7,9 +7,12 @@ public sealed class CheckoutBasketEndpoints : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost("/basket/checkout", async (CheckoutBasketRequest request, ISender sender, CancellationToken ct) =>
+        app.MapPost("/basket/checkout", async (CheckoutBasketRequest request, HttpContext context, ISender sender, CancellationToken ct) =>
             {
-                var command = BasketMapper.ToCommand(request);
+                var command = BasketMapper.ToCommand(request) with
+                {
+                    IdempotencyKey = context.Request.Headers["Idempotency-Key"].FirstOrDefault()
+                };
 
                 var result = await sender.Send(command, ct);
 

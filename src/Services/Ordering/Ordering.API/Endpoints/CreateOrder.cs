@@ -9,11 +9,14 @@ public sealed class CreateOrder : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost("/orders", async (CreateOrderRequest request, ISender sender) =>
+        app.MapPost("/orders", async (CreateOrderRequest request, HttpContext context, ISender sender, CancellationToken ct) =>
         {
-            var command = request.Adapt<CreateOrderCommand>();
+            var command = request.Adapt<CreateOrderCommand>() with
+            {
+                IdempotencyKey = context.Request.Headers["Idempotency-Key"].FirstOrDefault()
+            };
 
-            var result = await sender.Send(command);
+            var result = await sender.Send(command, ct);
 
             var response = result.Adapt<CreateOrderResponse>();
 

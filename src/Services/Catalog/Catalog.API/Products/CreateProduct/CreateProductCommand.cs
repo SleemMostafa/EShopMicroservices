@@ -8,7 +8,8 @@ public sealed record CreateProductCommand
         string Description,
         List<string> Category,
         string ImageFile,
-        decimal Price) : ICommand<CreateProductResult>;
+        decimal Price,
+        string? IdempotencyKey = null) : IIdempotentCommand<CreateProductResult>;
 
 public sealed record CreateProductResult(Guid Id);
 

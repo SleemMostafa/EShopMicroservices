@@ -3,8 +3,10 @@ using BuildingBlocks.Behaviors;
 using BuildingBlocks.Exceptions.Handler;
 using BuildingBlocks.Logging;
 using BuildingBlocks.OpenApi;
+using BuildingBlocks.Resilience;
 using BuildingBlocks.Security;
 using Catalog.API.Diagnostics;
+using EShop.ServiceDefaults;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -20,6 +22,7 @@ public static class Setup
     {
         builder.Host.UseEshopSerilog(applicationName);
         builder.AddServiceDefaults();
+        builder.Services.AddEshopCorrelationId(builder.Configuration);
 
         var assembly = typeof(Setup).Assembly;
 
@@ -31,6 +34,7 @@ public static class Setup
             config.AddOpenBehavior(typeof(ValidationBehavior<,>));
             config.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
+        builder.Services.AddEshopIdempotency(builder.Configuration);
         builder.Services.AddValidatorsFromAssembly(assembly);
 
         builder.Services.AddSingleton<IEshopClock, EshopClock>();
@@ -67,6 +71,7 @@ public static class Setup
         this WebApplication app,
         string applicationName)
     {
+        app.UseEshopCorrelationId();
         app.UseEshopSerilogRequestLogging();
         app.UseExceptionHandler(_ => { });
         app.UseJwtAuthentication();

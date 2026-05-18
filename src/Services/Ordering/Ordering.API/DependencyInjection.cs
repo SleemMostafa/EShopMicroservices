@@ -1,7 +1,9 @@
-﻿using BuildingBlocks.Exceptions.Handler;
+using BuildingBlocks.Exceptions.Handler;
+using BuildingBlocks.Logging;
+using BuildingBlocks.Resilience;
+using EShop.ServiceDefaults;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Configuration;
 
 namespace Ordering.API;
 
@@ -20,14 +22,16 @@ public static class DependencyInjection
 
     public static WebApplication UseApiServices(this WebApplication app)
     {
-        app.MapCarter();
-
+        app.UseEshopCorrelationId();
+        app.UseEshopSerilogRequestLogging();
         app.UseExceptionHandler(options => { });
+        app.MapDefaultEndpoints();
         app.UseHealthChecks("/health",
             new HealthCheckOptions
             {
                 ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
             });
+        app.MapCarter();
 
         return app;
     }

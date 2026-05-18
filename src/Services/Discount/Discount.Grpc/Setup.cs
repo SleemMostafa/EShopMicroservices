@@ -2,10 +2,11 @@ using BuildingBlocks.Authentication;
 using BuildingBlocks.Exceptions.Handler;
 using BuildingBlocks.Logging;
 using BuildingBlocks.OpenApi;
+using BuildingBlocks.Resilience;
 using BuildingBlocks.Security;
-using Discount.Grpc.Data;
 using Discount.Grpc.Diagnostics;
 using Discount.Grpc.Discounts;
+using EShop.ServiceDefaults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -19,6 +20,7 @@ public static class Setup
     {
         builder.Host.UseEshopSerilog(applicationName);
         builder.AddServiceDefaults();
+        builder.Services.AddEshopCorrelationId(builder.Configuration);
 
         builder.Services.AddEshopOpenApi();
         builder.Services.AddGrpc();
@@ -39,6 +41,7 @@ public static class Setup
         this WebApplication app,
         string applicationName)
     {
+        app.UseEshopCorrelationId();
         app.UseEshopSerilogRequestLogging();
         app.UseExceptionHandler(_ => { });
         app.UseJwtAuthentication();

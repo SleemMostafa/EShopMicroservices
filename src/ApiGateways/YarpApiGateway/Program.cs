@@ -1,8 +1,10 @@
 using BuildingBlocks.Authentication;
 using BuildingBlocks;
 using BuildingBlocks.Logging;
+using BuildingBlocks.Resilience;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using EShop.ServiceDefaults;
 
 EshopSerilog.ConfigureBootstrapLogger(ApplicationNames.YarpApiGateway);
 
@@ -14,6 +16,7 @@ try
 
     builder.Host.UseEshopSerilog(ApplicationNames.YarpApiGateway);
     builder.AddServiceDefaults();
+    builder.Services.AddEshopCorrelationId(builder.Configuration);
     builder.Services.AddJwtAuthentication(builder.Configuration);
     builder.Services.AddRateLimiter(options =>
     {
@@ -52,6 +55,7 @@ try
 
     var app = builder.Build();
 
+    app.UseEshopCorrelationId();
     app.UseEshopSerilogRequestLogging();
     app.Use(async (context, next) =>
     {

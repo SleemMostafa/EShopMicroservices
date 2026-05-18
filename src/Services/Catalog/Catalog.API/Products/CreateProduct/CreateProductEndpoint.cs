@@ -1,4 +1,4 @@
-﻿namespace Catalog.API.Products.CreateProduct;
+namespace Catalog.API.Products.CreateProduct;
 
 public sealed record CreateProductRequest(
     string Name,
@@ -13,14 +13,17 @@ public sealed class CreateProductEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost("/products", async (CreateProductRequest request, ISender sender, CancellationToken ct) =>
+        app.MapPost("/products", async (CreateProductRequest request, HttpContext context, ISender sender, CancellationToken ct) =>
             {
-                var command = ProductMapper.ToCommand(request);
+                var command = ProductMapper.ToCommand(request) with
+                {
+                    IdempotencyKey = context.Request.Headers["Idempotency-Key"].FirstOrDefault()
+                };
 
                 var result = await sender.Send(command, ct);
 
                 var response = ProductMapper.ToResponse(result);
-                
+
                 return Results.Created($"/product{response.Id}", response);
             })
             .WithName("CreateProduct")

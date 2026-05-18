@@ -1,9 +1,13 @@
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Logging;
 using BuildingBlocks.OpenApi;
+using BuildingBlocks.Resilience;
 using BuildingBlocks.Security;
+using BuildingBlocks.Messaging.MassTransit;
+using Basket.API.Diagnostics;
 using Discount.Grpc;
-using Grpc.Net.Client;
+using EShop.ServiceDefaults;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Basket.API;
 
@@ -15,6 +19,7 @@ public static class Setup
     {
         builder.Host.UseEshopSerilog(applicationName);
         builder.AddServiceDefaults();
+        builder.Services.AddEshopCorrelationId(builder.Configuration);
 
         var assembly = typeof(Setup).Assembly;
 
@@ -26,6 +31,7 @@ public static class Setup
             config.AddOpenBehavior(typeof(ValidationBehavior<,>));
             config.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
+        builder.Services.AddEshopIdempotency(builder.Configuration);
         builder.Services.AddValidatorsFromAssembly(assembly);
 
         builder.Services.AddMarten(options =>
@@ -41,18 +47,18 @@ public static class Setup
         });
         builder.Services.AddScoped<ICacheService, DistributedCacheService>();
 
-        builder.Services.AddSingleton(_ =>
-        {
-            var discountUrl = builder.Configuration["GrpcSettings:DiscountUrl"]!;
-            var channel = GrpcChannel.ForAddress(discountUrl);
-
-            return new DiscountProtoService.DiscountProtoServiceClient(channel);
-        });
+        builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(options =>
+            options.Address = new Uri(builder.Configuration["GrpcSettings:DiscountUrl"]!));
 
         builder.Services.AddEshopDataProtection(builder.Configuration, applicationName);
         builder.Services.AddCurrentUserProvider();
         builder.Services.AddJwtAuthentication(builder.Configuration);
         builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+        builder.Services.AddMessageBroker(builder.Configuration);
+        builder.Services.AddHealthChecks()
+            .AddCheck("basket-api", () => HealthCheckResult.Healthy("Basket API is healthy."), ["ready"])
+            .AddCheck<PostgresHealthCheck>("basket-postgres", tags: ["ready"])
+            .AddCheck<RedisHealthCheck>("basket-redis", tags: ["ready"]);
 
         return builder;
     }
@@ -61,6 +67,7 @@ public static class Setup
         this WebApplication app,
         string applicationName)
     {
+        app.UseEshopCorrelationId();
         app.UseEshopSerilogRequestLogging();
         app.UseExceptionHandler(_ => { });
         app.UseJwtAuthentication();
