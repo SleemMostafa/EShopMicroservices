@@ -2,6 +2,7 @@ using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using System.Security.Authentication;
 
 namespace BuildingBlocks.Messaging.MassTransit;
 
@@ -12,6 +13,10 @@ public sealed class MessageBrokerOptions
     public string UserName { get; init; } = "guest";
 
     public string Password { get; init; } = "guest";
+
+    public bool UseSsl { get; init; }
+
+    public string? SslServerName { get; init; }
 
     public int RetryLimit { get; init; } = 3;
 
@@ -43,6 +48,8 @@ public static class Extentions
             Host = section["Host"] ?? "amqp://localhost:5672",
             UserName = section["UserName"] ?? "guest",
             Password = section["Password"] ?? "guest",
+            UseSsl = GetBool(section, "UseSsl", false),
+            SslServerName = section["SslServerName"],
             RetryLimit = GetInt(section, "RetryLimit", 3),
             RetryInitialIntervalSeconds = GetInt(section, "RetryInitialIntervalSeconds", 1),
             RetryIntervalIncrementSeconds = GetInt(section, "RetryIntervalIncrementSeconds", 2),
@@ -67,6 +74,19 @@ public static class Extentions
                 {
                     host.Username(options.UserName);
                     host.Password(options.Password);
+
+                    if (options.UseSsl)
+                    {
+                        host.UseSsl(ssl =>
+                        {
+                            ssl.Protocol = SslProtocols.Tls12 | SslProtocols.Tls13;
+
+                            if (!string.IsNullOrWhiteSpace(options.SslServerName))
+                            {
+                                ssl.ServerName = options.SslServerName;
+                            }
+                        });
+                    }
                 });
 
                 configurator.UseMessageRetry(retry => retry.Incremental(
@@ -101,5 +121,10 @@ public static class Extentions
     private static double GetDouble(IConfiguration configuration, string key, double fallback)
     {
         return double.TryParse(configuration[key], out var value) ? value : fallback;
+    }
+
+    private static bool GetBool(IConfiguration configuration, string key, bool fallback)
+    {
+        return bool.TryParse(configuration[key], out var value) ? value : fallback;
     }
 }

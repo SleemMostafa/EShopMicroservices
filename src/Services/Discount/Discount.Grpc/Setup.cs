@@ -27,6 +27,10 @@ public static class Setup
         builder.Services.AddEshopDataProtection(builder.Configuration, applicationName);
         builder.Services.AddCurrentUserProvider();
         builder.Services.AddJwtAuthentication(builder.Configuration);
+        builder.Services.AddInternalServiceAuthorization(
+            InternalServicePolicies.DiscountRead,
+            ApplicationNames.BasketApi,
+            "discount.read");
         builder.Services.AddExceptionHandler<CustomExceptionHandler>();
         builder.Services.AddDbContext<DiscountContext>(options =>
             options.UseSqlite(builder.Configuration.GetConnectionString("Database")));
@@ -49,7 +53,8 @@ public static class Setup
         app.MapDefaultEndpoints();
         app.MapHealthChecks("/health")
             .AllowAnonymous();
-        app.MapGrpcService<DiscountService>();
+        app.MapGrpcService<DiscountService>()
+            .RequireAuthorization(InternalServicePolicies.DiscountRead);
         app.MapGet("/",
             () =>
                 "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");

@@ -94,9 +94,17 @@ services:
       - ConnectionStrings__Database=Server=basketdb;Port=5432;Database=BasketDb;User Id=postgres;Password=postgres;Include Error Detail=true
       - ConnectionStrings__Redis=distributedcache:6379
       - GrpcSettings__DiscountUrl=http://discount.grpc:8080
+      - InternalServiceAuth__ServiceName=Basket.API
+      - InternalServiceAuth__Scopes__0=discount.read
+      - InternalServiceAuth__TokenLifetimeMinutes=5
+      - Jwt__Issuer=EShop.Identity
+      - Jwt__Audience=EShop.Services
+      - Jwt__Secret=CHANGE_ME_DEV_SECRET_1234567890_32_CHARS_MIN
+      - Jwt__ClockSkewSeconds=30
       - MessageBroker__Host=amqp://ecommerce-mq:5672
       - MessageBroker__UserName=guest
       - MessageBroker__Password=guest
+      - MessageBroker__UseSsl=false
       - Seq__ServerUrl=http://seq:80
       - DataProtection__KeysPath=/home/app/.aspnet/DataProtection-Keys
 
@@ -139,6 +147,10 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ConnectionStrings__Database=Data Source=discountdb
+      - Jwt__Issuer=EShop.Identity
+      - Jwt__Audience=EShop.Services
+      - Jwt__Secret=CHANGE_ME_DEV_SECRET_1234567890_32_CHARS_MIN
+      - Jwt__ClockSkewSeconds=30
       - Seq__ServerUrl=http://seq:80
       - DataProtection__KeysPath=/home/app/.aspnet/DataProtection-Keys
     depends_on:
@@ -157,6 +169,11 @@ services:
       - MessageBroker__Host=amqp://ecommerce-mq:5672
       - MessageBroker__UserName=guest
       - MessageBroker__Password=guest
+      - MessageBroker__UseSsl=false
+      - Jwt__Issuer=EShop.Identity
+      - Jwt__Audience=EShop.Services
+      - Jwt__Secret=CHANGE_ME_DEV_SECRET_1234567890_32_CHARS_MIN
+      - Jwt__ClockSkewSeconds=30
       - FeatureManagement__OrderFullfilment=false
     depends_on:
       - orderdb

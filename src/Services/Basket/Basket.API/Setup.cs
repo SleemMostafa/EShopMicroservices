@@ -4,9 +4,12 @@ using BuildingBlocks.OpenApi;
 using BuildingBlocks.Resilience;
 using BuildingBlocks.Security;
 using BuildingBlocks.Messaging.MassTransit;
+using Basket.API.Infrastructure.Grpc;
 using Basket.API.Diagnostics;
 using Discount.Grpc;
 using EShop.ServiceDefaults;
+using Grpc.Net.ClientFactory;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Basket.API;
@@ -47,12 +50,23 @@ public static class Setup
         });
         builder.Services.AddScoped<ICacheService, DistributedCacheService>();
 
-        builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(options =>
-            options.Address = new Uri(builder.Configuration["GrpcSettings:DiscountUrl"]!));
+        builder.Services.AddSingleton<IEshopClock, EshopClock>();
+        builder.Services.AddInternalServiceTokenProvider(builder.Configuration);
+        builder.Services.AddTransient<InternalServiceAuthInterceptor>();
+        builder.Services
+            .AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(options =>
+                options.Address = new Uri(builder.Configuration["GrpcSettings:DiscountUrl"]!))
+            .AddInterceptor<InternalServiceAuthInterceptor>(InterceptorScope.Client);
 
         builder.Services.AddEshopDataProtection(builder.Configuration, applicationName);
         builder.Services.AddCurrentUserProvider();
         builder.Services.AddJwtAuthentication(builder.Configuration);
+        builder.Services.AddAuthorization(options =>
+        {
+            options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+        });
         builder.Services.AddExceptionHandler<CustomExceptionHandler>();
         builder.Services.AddMessageBroker(builder.Configuration);
         builder.Services.AddHealthChecks()
